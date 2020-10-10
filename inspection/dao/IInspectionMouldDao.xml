@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vlinksoft.ves.inspection.dao.IInspectionMouldDao">
+
+	<insert id="addInspectionMould" parameterType="com.vlinksoft.ves.inspection.bo.InspectionMouldVo"
+			useGeneratedKeys="true" keyProperty="id">
+		insert into itsm_inspect_mould (mouldName,createTime,state,mouldFileId,mouldFileName,domainId) values (#{mouldName},#{createTime},#{state},#{mouldFileId},#{mouldFileName},#{domainId})
+	</insert>
+
+	<select id="getInspectionMouldByPage" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+			resultType="com.vlinksoft.ves.inspection.bo.InspectionMouldVo" databaseId="mysql">
+		SELECT 	m.id AS id,
+		m.mouldName AS mouldName,
+		m.createTime AS createTime,
+		m.mouldFileId AS mouldFileId,
+		m.mouldFileName AS mouldFileName,
+		m.state AS state
+		FROM itsm_inspect_mould m
+		where m.id is not null
+		<if test="condition.mouldName != null and condition.mouldName != '' ">
+			and m.mouldName like concat('%',#{condition.mouldName},'%')
+		</if>
+		<if test="condition.state == 0 or condition.state == 1">
+			and m.state = #{condition.state}
+		</if>
+		<if test="condition.domainId != null or condition.domainId != ''">
+			and m.domainId = ${condition.domainId}
+		</if>
+
+	</select>
+
+	<update id="startInspectionMouldByIds" parameterType="java.util.List">
+		<foreach collection="list" item="item" open="" separator=";" close="">
+			UPDATE itsm_inspect_mould i SET i.state=1
+			where i.id=#{item}
+		</foreach>
+	</update>
+
+	<update id="stopInspectionMouldByIds" parameterType="java.util.List">
+		<foreach collection="list" item="item" open="" separator=";" close="">
+			UPDATE itsm_inspect_mould i SET i.state=0
+			where i.id=#{item}
+		</foreach>
+	</update>
+
+	<select id="getInspectionMouldById" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.inspection.bo.InspectionMouldVo">
+		SELECT 	m.id AS id,
+		m.mouldName AS mouldName,
+		m.createTime AS createTime,
+		m.mouldFileId AS mouldFileId,
+		m.mouldFileName AS mouldFileName,
+		m.state AS state
+		FROM itsm_inspect_mould m
+		where m.id = #{id}
+	</select>
+
+	<delete id="deleteMouldAndPlanTaskById" parameterType="java.lang.Long">
+		delete from itsm_inspect_mould where id = #{mouldId}
+	</delete>
+
+	<update id="updateInspectionMouldInfo" parameterType="com.vlinksoft.ves.inspection.bo.InspectionMouldVo">
+		update itsm_inspect_mould
+		<set>
+			<if test="mouldName != null">
+				mouldName = #{mouldName},
+			</if>
+			<if test="mouldFileId != 0">
+				mouldFileId = #{mouldFileId},
+			</if>
+			<if test="mouldFileName != null">
+				mouldFileName = #{mouldFileName}
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+</mapper>

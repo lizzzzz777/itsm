@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vlinksoft.ves.dutymanage.dao.DutyListDao">  <!--更改路径名  编写下面内容-->
+
+    <insert id="insertDutyList" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyListVo">
+         INSERT INTO `itsm_duty_list` (`id`, `startTime`, `endTime`,domainId,afterStartTime,afterEndTime,state) VALUES
+          (#{id}, #{startTime}, #{endTime},#{domainId},#{afterStartTime},#{afterEndTime},#{state});
+    </insert>
+
+    <update id="updateDutyList" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyListVo">
+        UPDATE `itsm_duty_list`
+        <set>
+            <if test="startTime!=null">startTime=#{startTime},</if>
+            <if test="endTime!=null">endTime = #{endTime},</if>
+            <if test="state!=null">state = #{state}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="findAllDutyListById" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyListVo">
+                select * from itsm_duty_list where id = #{id}
+    </select>
+
+    <select id="findAllDutyList" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyListVo" resultType="com.vlinksoft.ves.dutymanage.bo.DutyListVo">
+        select * from itsm_duty_list
+    </select>
+
+    <select id="findAllDutyPage" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" resultType="com.vlinksoft.ves.dutymanage.bo.DutyListVo">
+        select * from itsm_duty_list
+        where 1 =1
+        <if test="condition!=null">
+            <if test="condition.domainId!=null">
+               and  domainId = #{condition.domainId}
+            </if>
+        </if>
+    </select>
+
+
+    <delete id="deleteDutyListById" parameterType="java.lang.Long">
+         DELETE
+        FROM
+            itsm_duty_list
+        WHERE
+            id = #{id}
+    </delete>
+
+</mapper>

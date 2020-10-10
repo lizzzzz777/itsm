@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vlinksoft.ves.inspection.dao.InspectTaskDao">
+    <!--添加任务-->
+    <insert id="saveTask" parameterType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+      insert into itsm_inspect_task
+      (id,planId,taskNumber,title,inspectionReport,reportTime,userName,userId,taskCreateTime,
+      createUser,createUserId,timeOver,inspectionTime,inspectionDate,grade,isPublish,description,
+      planSheetId,inspectionType,timeOutState,remindTime,isEmail,isTelphone) values
+      (#{id},#{planId},#{taskNumber},#{title},#{inspectionReport},
+      #{reportTime},#{userName},#{userId},#{taskCreateTime},#{createUser},
+      #{createUserId},#{timeOver},#{inspectionTime},#{inspectionDate},#{grade},
+      #{isPublish},#{description},#{planSheetId},#{inspectionType},#{timeOutState},
+      #{remindTime},#{isEmail},#{isTelphone})
+    </insert>
+    <!--查询任务-->
+    <select id="findAllTask" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where 1=1
+        <if test="condition.inspectionReport != null and condition.inspectionReport != ''">
+            and inspectionReport LIKE #{condition.inspectionReport}
+        </if>
+        <if test="condition.domainId != null and condition.domainId != ''">
+            and domainId = #{condition.domainId}
+        </if>
+        <if test="condition.startTime != null">
+            and inspectionStartTime >= #{condition.startTime}
+        </if>
+        <if test="condition.endTime != null">
+            and inspectionStartTime &lt; #{condition.endTime}
+        </if>
+        <if test="condition.userId != null">
+            and userId = #{condition.userId}
+        </if>
+        order by inspectionStartTime desc
+    </select>
+    <!--发布任务-->
+    <update id="publishTask" parameterType="java.lang.Long">
+        update itsm_inspect_task set isPublish = 1 where id = #{id}
+    </update>
+
+    <!--删除任务-->
+    <delete id="delTask" parameterType="java.lang.Long">
+        delete from itsm_inspect_task where id = #{id}
+    </delete>
+
+    <!--查询任务详情-->
+    <select id="getTaskByIds" parameterType="java.lang.Long"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where id = #{id}
+    </select>
+
+    <!--修改任务-->
+    <update id="updateTaskById" parameterType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        update itsm_inspect_task set
+        title = #{title},description = #{description},grade = #{grade},
+        inspectionDate = #{inspectionDate},createUser = #{createUser},
+        inspectionTime = #{inspectionTime},remindTime = #{remindTime},
+        isEmail = #{isEmail}, isTelphone = #{isEmail}
+        where id = #{id}
+    </update>
+
+    <!--提交报告-->
+    <update id="toReportById" parameterType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+         update itsm_inspect_task set inspectionReport = #{inspectionReport},reportTime = #{reportTime},
+         inspectionType = #{inspectionType}
+        where id = #{id}
+    </update>
+    <!--我的待办-->
+    <select id="findAllMyTaskByUserId" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where userId = #{condition.userId} or userId = 1
+        and taskState != 'completed' and taskState != 'overtime_completed'
+        <if test="condition.inspectionReport != null and condition.inspectionReport != ''">
+            and inspectionReport LIKE #{condition.inspectionReport}
+        </if>
+        <if test="condition.domainId != null and condition.domainId != ''">
+            and domainId = #{condition.domainId}
+        </if>
+        order by inspectionStartTime desc
+    </select>
+
+    <select id="findAfterAllMyTaskByUserId" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where userId = #{condition.userId}
+        and taskState != 'completed' and taskState != 'overtime_completed' and taskState != 'un_complete'
+        <if test="condition.inspectionReport != null and condition.inspectionReport != ''">
+            and inspectionReport LIKE #{condition.inspectionReport}
+        </if>
+        <if test="condition.domainId != null and condition.domainId != ''">
+            and domainId = #{condition.domainId}
+        </if>
+        and TO_DAYS(inspectionStartTime) = TO_DAYS(NOW())
+        order by inspectionStartTime desc
+    </select>
+
+    <select id="findAfterAllMyTaskByAdminId" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where
+        taskState != 'completed' and taskState != 'overtime_completed' and taskState != 'un_complete'
+        <if test="condition.inspectionReport != null and condition.inspectionReport != ''">
+            and inspectionReport LIKE #{condition.inspectionReport}
+        </if>
+        <if test="condition.domainId != null and condition.domainId != ''">
+            and domainId = #{condition.domainId}
+        </if>
+        and TO_DAYS(inspectionStartTime) = TO_DAYS(NOW())
+        order by inspectionStartTime desc
+    </select>
+
+    <!--我的待办数量-->
+    <select id="findAgenda" parameterType="java.lang.Long"
+            resultType="java.lang.Integer">
+        select count(id) from itsm_inspect_task where userId = #{loginUser} and inspectionType = 0 order by inspectionType desc
+    </select>
+
+    <!--巡检类型-->
+    <select id="findByTimeType" parameterType="java.lang.Long"
+            resultType="java.lang.Integer">
+        select type from itsm_plan_rule where planId = #{planId}
+    </select>
+
+    <!--全部巡检-->
+    <select id="findAllInspection" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where userId = #{condition.userId}
+        <if test="condition.inspectionReport != null and condition.inspectionReport != ''">
+            and inspectionReport LIKE #{condition.inspectionReport}
+        </if>
+        <if test="condition.domainId != null and condition.domainId != ''">
+            and domainId = #{condition.domainId}
+        </if>
+        <if test="condition.startTime != null">
+            and inspectionStartTime >= #{condition.startTime}
+        </if>
+        <if test="condition.endTime != null">
+            and inspectionStartTime &lt; #{condition.endTime}
+        </if>
+        order by inspectionStartTime desc
+    </select>
+
+    <!--全部巡检-->
+    <select id="findAllInspections" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where userId = #{condition.loginId} and isPublish = 1
+        order by inspectionTime desc
+    </select>
+
+    <!--生成任务编号-->
+    <select id="getMaxNumer" parameterType="java.lang.String" resultType="java.lang.String">
+      SELECT MAX(taskSheetId) FROM itsm_inspect_task
+    </select>
+
+    <!--自动生成任务-->
+    <insert id="autoCreateTask" parameterType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        insert into itsm_inspect_task(id,planId,planSheetId,taskSheetId,inspectionReport,userName,
+        userId,timeOver,inspectionStartTime,inspectionEndDate,serviceId,mouldId,
+        remindTime,isEmail,isTelphone,isInsider,taskState,domainId)
+        values(#{id},#{planId},#{planSheetId},#{taskSheetId},#{inspectionReport},#{userName},#{userId},
+        #{timeOver},#{inspectionStartTime},#{inspectionEndDate},#{serviceId},#{mouldId},#{remindTime},
+        #{isEmail},#{isTelphone},#{isInsider},#{taskState},#{domainId})
+    </insert>
+
+    <!--修改巡检状态-->
+    <update id="updateInspectionType">
+        update itsm_inspect_task set inspectionType = 1 where id = #{id}
+    </update>
+    <!--修改超时状态-->
+    <update id="updateTimeOutState">
+        update itsm_inspect_task set taskState = 'un_complete' where id = #{id}
+    </update>
+    <!--上传文件-->
+    <insert id="insertInspectionFile" parameterType="com.vlinksoft.ves.inspection.bo.InspectionTaksFile">
+      insert into itsm_inspect_file (fileId,fileName,uploadUserId,uploadTime,taskNumber)values(#{fileId},#{fileName},#{uploadUserId},#{uploadTime},#{taskNumber});
+    </insert>
+    <!--查询是否有重复任务-->
+    <select id="checkRepeat" parameterType="java.util.Map" resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where planId = #{planId} and inspectionStartTime = #{inspectionStartTime}
+         and inspectionEndDate = #{inspectionEndTime}
+         and userId = #{userId}
+    </select>
+
+    <!--查询附件信息-->
+    <select id="findFilesByUserId" parameterType="java.util.Map"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTaksFile">
+        select * from itsm_inspect_file where uploadUserId = #{userId} and taskNumber = #{taskNumber};
+    </select>
+
+    <!--查询今天所有任务-->
+    <select id="findAllTaskByDay" parameterType="java.util.Map"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select tk.id,tk.planId,
+        tk.taskNumber,tk.title,
+        tk.userName,tk.userId,
+        tk.createUser,tk.createUserId,
+        tk.inspectionTime,tk.inspectionDate,
+        tk.grade,tk.isPublish,tk.description,
+        tk.planSheetId,tk.inspectionType,tk.timeOutState,
+        tk.remindTime,tk.isEmail,tk.isTelphone
+        from itsm_inspect_task tk where tk.isPublish = 1 and tk.inspectionType = 0
+        and tk.inspectionTime <![CDATA[>=]]> #{strDate} and tk.inspectionTime <![CDATA[<=]]> #{endDate}
+        <if test="domainId != null and domainId !=''">
+            and tk.domainId = #{domainId}
+        </if>
+    </select>
+    <insert id="insertFilePath" parameterType="com.vlinksoft.ves.inspection.bo.FilePathVo">
+        insert into itsm_file_path(id,annexId,appendixType,filePath,fileId)
+         values (#{id},#{annexId},#{appendixType},#{filePath},#{fileId})
+    </insert>
+    <select id="getFilePathById" parameterType="java.lang.String"
+            resultType="com.vlinksoft.ves.inspection.bo.FilePathVo">
+        select * from itsm_file_path where annexId = #{id}
+    </select>
+
+    <update id="updateInspectionInfo" parameterType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        update itsm_inspect_task
+        <set>
+            <if test="reportTime != null">
+                reportTime = #{reportTime},
+            </if>
+            <if test="taskState != null">
+                taskState = #{taskState},
+            </if>
+            <if test="fileId != 0">
+                fileId = #{fileId}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectInspectionTaskByPlanId" parameterType="java.lang.Long"
+            resultType="com.vlinksoft.ves.inspection.bo.InspectionTask">
+        select * from itsm_inspect_task where planId = #{planId}
+    </select>
+
+    <delete id="deleteInspectionReportByPlanId" parameterType="java.lang.Long">
+        delete from itsm_inspect_task where planId = #{planId}
+    </delete>
+
+    <select id="selectReportNumByQuery" parameterType="com.vlinksoft.ves.inspection.bo.ReportNumQuery"
+            resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM itsm_inspect_task t
+        WHERE t.serviceId = #{query.serviceId}
+        <if test="query.startTime != null and query.endTime != null">
+            AND #{query.startTime} &lt; t.inspectionStartTime
+            AND #{query.endTime} &gt; t.inspectionEndDate
+        </if>
+        <if test="query.userId != 0">
+            AND #{query.userId} = t.userId
+        </if>
+        <if test="query.state != null">
+            and t.taskState = #{query.state}
+        </if>
+    </select>
+
+
+    <select id="selectCompleteNum" resultType="java.lang.Long">
+        SELECT COUNT(id) FROM itsm_inspect_task t
+        WHERE 1=1
+        <if test="status == 'true'">
+            AND t.taskState IN ('completed','overtime_completed')
+        </if>
+        <if test="begin != null and end != null">
+            AND t.inspectionEndDate &lt;= #{end}
+            AND t.inspectionStartTime &gt;= #{begin}
+        </if>
+    </select>
+
+    <select id="selectCompleteNumByUser" resultType="java.util.Map">
+        SELECT
+        t3.userName AS userName,
+        t3.userId AS userId,
+        (
+        SELECT count(*) FROM itsm_inspect_task AS t1
+        WHERE t1.userId = t3.userId AND t1.taskState IN ('completed','overtime_completed')
+        <if test="begin != null and end != null">
+            AND t1.inspectionEndDate &lt;= #{end}
+            AND t1.inspectionStartTime &gt;= #{begin}
+        </if>
+        ) AS cNum,
+        (
+        SELECT count(*) FROM itsm_inspect_task AS t2
+        WHERE t2.userId = t3.userId
+        <if test="begin != null and end != null">
+            AND t2.inspectionEndDate &lt;= #{end}
+            AND t2.inspectionStartTime &gt;= #{begin}
+        </if>
+        ) AS aNum
+        FROM itsm_inspect_task t3
+        WHERE 1=1
+        GROUP BY t3.userId
+    </select>
+
+</mapper>

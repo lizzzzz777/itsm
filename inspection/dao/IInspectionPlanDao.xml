@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vlinksoft.ves.inspection.dao.IInspectionPlanDao">
+
+	<insert id="insertInspectionPlan" parameterType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo"
+			useGeneratedKeys="true" keyProperty="id">
+		insert into itsm_inspect_plan (planSheetId,state,planStartTime,planEndTime,isStart) values (#{planSheetId},#{state},#{planStartTime},#{planEndTime},#{isStart})
+	</insert>
+	<insert id="insertInspectionPlanRule" parameterType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo">
+		insert into itsm_plan_rule (planId,type,remindTime,isEmail,isTelphone,isInsider) values (#{planId},#{type},#{remindTime},#{isEmail},#{isTelphone},#{isInsider})
+	</insert>
+	<insert id="insertInspectionPlanPeoTime" parameterType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo">
+		insert into itsm_inspect_peotime (planId,timeType,startTime,endTime,timeOver,userId,userName,contactsName,contactsId,inspectDate) values
+		<foreach collection="userTimeList" item="userTime" index="index" separator=",">
+			<if test="userTime !=null">
+				(#{planId},#{userTime.timeType},#{userTime.startTime},#{userTime.endTime},#{userTime.timeOver},#{userTime.userId},#{userTime.userName},#{userTime.contactsName},#{userTime.contactsId},#{userTime.inspectDate})
+			</if>
+		</foreach>
+	</insert>
+	<insert id="insertInspectionPlanInform" parameterType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo">
+		insert into itsm_plan_inform (planId,title,timeOver,mouldId,serviceId,domainId) values
+		(#{planId},#{title},#{timeOver},#{mouldId},#{serviceId},#{domainId})
+	</insert>
+	<insert id="insertInspectionPlanAsset" parameterType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo">
+		insert into itsm_inspect_asset (planId,assetId) values
+		<foreach collection="assetList" item="asset" index="index" separator=",">
+			(#{planId},#{asset.assetId})
+		</foreach>
+	</insert>
+	<delete id="deleteInspectionPlan" parameterType="java.util.List">
+		delete from itsm_inspect_plan where id in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</delete>
+	<delete id="deleteInspectionPlanRules" parameterType="java.util.List">
+		delete from itsm_plan_rule where planId in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</delete>
+	<delete id="deleteInspectionPlanPeoTimes" parameterType="java.util.List">
+		delete from itsm_inspect_peotime where planId in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</delete>
+	<delete id="deleteInspectionPlanInforms" parameterType="java.util.List">
+		delete from itsm_plan_inform where planId in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</delete>
+	<delete id="deleteInspectionPlanAssets" parameterType="java.util.List">
+		delete from itsm_inspect_asset where planId in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</delete>
+	<update id="updateInspePlanStateLose" parameterType="java.util.List">
+		update itsm_inspect_plan plan set plan.isStart = 0 where plan.id in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</update>
+	<update id="updateInspePlanStateYes" parameterType="java.util.List">
+		update itsm_inspect_plan plan set plan.isStart = 1 where plan.id in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</update>
+	<select id="selectAllInspePlan" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+			resultType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo" databaseId="mysql">
+		SELECT 	plan.id AS id,
+		plan.id AS planId,
+		plan.planSheetId AS planSheetId,
+		inform.title AS title,
+		rule.type AS type,
+		plan.state AS state,
+		plan.planStartTime AS planStartTime,
+		inform.mouldId as mouldId,
+		inform.serviceId as serviceId,
+		plan.planEndTime AS planEndTime,
+		plan.isStart as isStart
+		FROM itsm_inspect_plan plan
+		LEFT JOIN itsm_plan_inform inform ON inform.planId = plan.id
+		LEFT JOIN itsm_plan_rule rule ON rule.planId = plan.id
+		where plan.isDelete = 0
+		<if test="condition.searchText != null">
+			and (inform.title like concat('%',#{condition.searchText},'%') )
+		</if>
+		and inform.domainId=#{condition.domainId}
+		ORDER BY plan.planStartTime DESC
+	</select>
+	<select id="selectInspePlanUser" parameterType="java.lang.Long"
+			resultType="com.vlinksoft.ves.inspection.bo.InspectionUsersVo" databaseId="mysql">
+		SELECT 	peo.startTime as `startTime`,
+				peo.endTime as endTime,
+				peo.timeOver as timeOver,
+				peo.timeType as timeType,
+				peo.userId as userId,
+				peo.userName as userName,
+				peo.contactsName as contactsName,
+				peo.contactsId as contactsId,
+				peo.inspectDate as inspectDate
+		FROM itsm_inspect_peotime peo WHERE peo.planId = (#{planId})
+	</select>
+	<select id="selectInspePlanById" parameterType="java.lang.Long"
+			resultType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo" databaseId="mysql">
+		SELECT	plan.id AS id,
+				inform.planId AS planId,
+				plan.planSheetId AS planSheetId,
+				plan.state AS state,
+				plan.planStartTime AS planStartTime,
+				plan.planEndTime AS planEndTime,
+				rule.type AS type,
+				rule.remindTime AS remindTime,
+				rule.isEmail AS isEmail,
+				rule.isTelphone AS isTelphone,
+				rule.isInsider as isInsider,
+				inform.title AS title,
+				inform.mouldId as mouldId,
+				inform.serviceId as serviceId,
+				inform.timeOver AS timeOver,
+				inform.domainId AS domainId,
+				plan.isStart as isStart
+				FROM itsm_inspect_plan plan
+				LEFT JOIN itsm_plan_inform inform ON inform.planId = plan.id
+				LEFT JOIN itsm_plan_rule rule ON rule.planId = plan.id
+				WHERE plan.id = (#{planId}) and plan.isDelete = 0
+	</select>
+	<select id="selectInspecPlanAsset" parameterType="java.lang.Long"
+			resultType="com.vlinksoft.ves.inspection.bo.InspectionAssetVo" databaseId="mysql">
+		SELECT	asset.assetId as assetId
+				FROM itsm_inspect_asset asset
+				WHERE plan.id = (#{planId})
+	</select>
+	<update id="updateSaveInspePlan" parameterType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo"
+			useGeneratedKeys="true" keyProperty="id">
+		update itsm_inspect_plan
+		<set>
+			<if test="planSheetId != null">
+				planSheetId = #{planSheetId},
+			</if>
+			<if test="state != null">
+				state = #{state},
+			</if>
+			<if test="planStartTime != null">
+				planStartTime = #{planStartTime},
+			</if>
+			<if test="planEndTime != null">
+				planEndTime = #{planEndTime},
+			</if>
+			<if test="isStart != null">
+				isStart = #{isStart}
+			</if>
+		</set>
+		where id = #{planId}
+	</update>
+	<select id="findMaxNumPlanSheetId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT MAX(planSheetId) FROM itsm_inspect_plan WHERE planSheetId LIKE CONCAT('%',#{nowValue},'%')
+	</select>
+	<select id="getAllPlanSheetIdByStaYes" resultType="java.lang.String">
+		SELECT p.planSheetId FROM itsm_inspect_plan p WHERE p.state = 1 and p.isDelete = 0
+	</select>
+	<insert id="insertInspePlanCycle" parameterType="com.vlinksoft.ves.inspection.bo.InspectionCycleVo">
+		 insert into itsm_inspect_cycle (planId,updateDate,cycleDate) values (#{planId},#{updateDate},#{cycleDate})
+	</insert>
+	<update id="updateInspePlanCycle" parameterType="com.vlinksoft.ves.inspection.bo.InspectionCycleVo">
+		update itsm_inspect_cycle
+		<set>
+			<if test="updateDate != null">
+				updateDate = #{updateDate},
+			</if>
+			<if test="cycleDate != null">
+				cycleDate = #{cycleDate}
+			</if>
+		</set>
+		where planId = #{planId}
+	</update>
+	<select id="selectInspeCycleByPlanId" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.inspection.bo.InspectionCycleVo">
+		SELECT 	cycle.updateDate as updateDate,
+				cycle.cycleDate as cycleDate,
+				cycle.planId as planId
+		FROM itsm_inspect_cycle cycle WHERE cycle.planId =(#{planId})
+	</select>
+	<delete id="delInspeCycleByPlanId" parameterType="java.lang.Long">
+		delete from itsm_inspect_cycle where planId = (#{planId})
+	</delete>
+	<select id="selectPlanIdByTypeState" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT * FROM itsm_inspect_plan plan
+					LEFT JOIN itsm_plan_rule rule ON rule.planId = plan.id
+					WHERE 	plan.state = (#{state})
+					AND 	rule.type = (#{type})
+					AND 	plan.planEndTime &gt; (#{nowTime})
+					and 	plan.isDelete = 0
+	</select>
+	<select id="selectPlanIdByNowTime" resultType="java.lang.Long" parameterType="com.vlinksoft.ves.inspection.bo.InspectionPlanQuery">
+		SELECT plan.id FROM itsm_inspect_plan plan
+		LEFT JOIN itsm_plan_rule rule ON rule.planId = plan.id
+		WHERE isDelete = 0
+		<if test="isStart != null">
+			and plan.isStart = (#{isStart})
+		</if>
+		<if test="type != null">
+			and rule.type = (#{type})
+		</if>
+		<if test="nowTime != null">
+			AND plan.planStartTime &lt; #{nowTime}
+			AND #{nowTime} &lt; (CASE WHEN plan.planEndTime IS NULL THEN #{nowTime}+10 ELSE plan.planEndTime END)
+		</if>
+	</select>
+	<update id="deleteNoInspectionPlans" parameterType="java.util.List">
+		update itsm_inspect_plan plan set plan.isDelete = 1 where plan.id in
+		<foreach item="planId" index="index" collection="list" open="(" separator="," close=")">
+			#{planId}
+		</foreach>
+	</update>
+	<select id="selectPlanByMouldId" parameterType="java.lang.Long" resultType="java.lang.String">
+		SELECT	plan.id AS id
+		FROM itsm_inspect_plan plan
+			LEFT JOIN itsm_plan_inform inform ON inform.planId = plan.id
+		WHERE inform.mouldId = (#{mouldId})
+	</select>
+	<select id="selectInspectionPlanByMouldId" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.inspection.bo.InspectionPlanVo">
+		SELECT	plan.id AS id,
+		          inform.planId AS planId,
+		          plan.planSheetId AS planSheetId,
+		          plan.state AS state,
+		          plan.planStartTime AS planStartTime,
+		          plan.planEndTime AS planEndTime,
+		          rule.type AS type,
+		          rule.remindTime AS remindTime,
+		          rule.isEmail AS isEmail,
+		          rule.isTelphone AS isTelphone,
+		          rule.isInsider as isInsider,
+		          inform.title AS title,
+		          inform.mouldId as mouldId,
+		          inform.serviceId as serviceId,
+		          inform.timeOver AS timeOver,
+		          plan.isStart as isStart
+		FROM itsm_inspect_plan plan
+			LEFT JOIN itsm_plan_inform inform ON inform.planId = plan.id
+			LEFT JOIN itsm_plan_rule rule ON rule.planId = plan.id
+		WHERE inform.mouldId = (#{mouldId}) and plan.isDelete = 0
+	</select>
+</mapper>

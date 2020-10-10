@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vlinksoft.ves.dutymanage.dao.DutyUserDao">  <!--更改路径名  编写下面内容-->
+
+    <insert id="addDutyClassInfoToTable" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+         INSERT INTO `itsm_duty_type` (`typeId`, `name`, `startTime`, `endTime`, `phone`, `acrossDay`,domainId) VALUES
+          (#{typeId}, #{name}, #{startTime}, #{endTime}, #{phone}, #{acrossDay},#{domainId});
+    </insert>
+    <update id="insertShiftIdTos" parameterType="java.util.Map">
+        UPDATE `itsm_duty_type_user` SET typeId=#{tid} WHERE itsm_duty_type_user.userId IN
+        <foreach collection="list" item="man" open="(" separator="," close=")">#{man}
+        </foreach>
+    </update>
+
+
+
+
+    <insert id="insertShiftIdUser" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyUserVo">
+    INSERT INTO `itsm_duty_type_user` (`id`,`userId`,`typeId`,`userName`) VALUES (#{id},#{userId},#{typeId},#{userName});
+    </insert>
+    <select id="selectDutyListType" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" databaseId="mysql">
+  SELECT * FROM itsm_duty_type WHERE itsm_duty_type.name LIKE #{condition.name}
+
+ </select>
+    <delete id="deleteShiftListTypeById" parameterType="java.lang.String">
+     DELETE FROM `itsm_duty_type` WHERE itsm_duty_type.typeId in (${_parameter})
+    </delete>
+    <delete id="deleteShiftListUserById" parameterType="java.lang.String">
+       DELETE FROM `itsm_duty_type_user` WHERE itsm_duty_type_user.typeId in (${_parameter})
+    </delete>
+
+    <update id="updateDutyClassTypeByVo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        UPDATE `itsm_duty_type` SET itsm_duty_type.name=#{name},startTime=#{startTime},endTime=#{endTime} ,phone=#{phone},acrossDay=#{acrossDay},domainId = #{domainId}  WHERE itsm_duty_type.typeId=#{typeId}
+    </update>
+    <select id="checkClassByName" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo"
+            resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM itsm_duty_type WHERE itsm_duty_type.name=#{name}
+    </select>
+
+    <select id="checkClassByNameAndDomainId" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM itsm_duty_type WHERE itsm_duty_type.name=#{name} and itsm_duty_type.domainId = #{domainId}
+    </select>
+    <select id="checkClassLine" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo" resultType="java.lang.Integer">
+       SELECT COUNT(*) FROM itsm_duty_main_user u ,itsm_duty_main m WHERE u.dutyId=m.dutyId AND m.dutyDate > #{dutyDate} AND u.dutyTypeId=#{dutyId}
+    </select>
+    <select id="selectDutyUserByDutyId" parameterType="java.lang.Long"
+            resultType="com.vlinksoft.ves.dutymanage.bo.DutyUserVo">
+        SELECT * FROM itsm_duty_type_user WHERE typeId=#{typeId}
+    </select>
+    <select id="findDutyTypeByDomainId" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT* FROM itsm_duty_type WHERE 1 = 1
+        <if test="condition.domainId != null and condition.domainId != 1">
+            and domainId = #{condition.domainId}
+        </if>
+    </select>
+    <resultMap id="dutyTypeList" type="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        <id column="typeId" property="typeId"></id>
+        <result column="name" property="name"></result>
+        <result column="startTime" property="startTime"></result>
+        <result column="endTime" property="endTime"></result>
+        <result column="phone" property="phone"></result>
+        <result column="acrossDay" property="acrossDay"></result>
+        <collection property="listMan" ofType="com.vlinksoft.ves.dutymanage.bo.DutyUserVo">
+            <id column="userId" property="userId"></id>
+            <result column="typeId" property="typeId"></result>
+            <result column="userName" property="userName"></result>
+        </collection>
+    </resultMap>
+    
+    <select id="dutyTypeListByAcross" parameterType="java.lang.Integer" resultMap="dutyTypeList">
+      SELECT typeId,startTime,endTime,acrossDay FROM itsm_duty_type WHERE acrossDay = #{across} AND typeId != #{dutyTypeId}
+    </select>
+    
+    <select id="selectDutyUserToday" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page"
+            resultType="com.vlinksoft.ves.dutymanage.Vo.DutyTodayVo" databaseId="mysql">
+        SELECT  `user`.c_id AS userId,u.typeUserName AS dutyName,t.`name` AS dutyType,`user`.c_mobile AS userMobile FROM itsm_duty_main m LEFT JOIN itsm_duty_main_user u ON m.dutyId = u.dutyId
+        LEFT JOIN itsm_duty_type t ON t.typeId = u.dutyTypeId
+        LEFT JOIN plat_user user ON u.typeUserId = `user`.c_id
+        WHERE m.dutyDate = #{condition.today}
+    </select>
+    <select id="summaryDutyCount" parameterType="java.util.HashMap" resultType="com.vlinksoft.ves.dutymanage.dao.po.DutyCountPO">
+        SELECT duty.typeUserId userId,u.c_name userName,COUNT(*) AS dutyCount,NOW()>dutyDate AS state FROM itsm_duty_main_user duty,plat_user u
+        WHERE duty.typeUserId=u.c_id and dutyDate BETWEEN #{startDate} and #{endDate} GROUP BY duty.typeUserId,state
+    </select>
+
+    <select id="summaryDutyApproveCount" parameterType="java.util.HashMap" resultType="com.vlinksoft.ves.dutymanage.dao.po.DutyApproveCountPO">
+        SELECT app.dutyPeopleId userId,u.c_name userName,COUNT(*) AS approveCount,app.dutyType FROM itsm_duty_approve app,plat_user u
+        WHERE app.dutyPeopleId=u.c_id and app.dutyDate BETWEEN #{startDate} and #{endDate} GROUP BY app.dutyPeopleId,app.dutyType
+    </select>
+    <select id="getSummaryDutyApproveCountByDomainId" parameterType="java.util.HashMap" resultType="com.vlinksoft.ves.dutymanage.dao.po.DutyApproveCountPO">
+        SELECT DATE_FORMAT
+        (app.dutyDate,'%Y-%m') AS dutyMonth,
+        app.dutyPeopleId userId,
+        u.c_name userName,
+        pudr.domainId,
+        COUNT( * ) AS approveCount,
+        app.dutyType
+    FROM
+        itsm_duty_approve app
+        LEFT JOIN plat_user u ON app.dutyPeopleId = u.c_id
+        LEFT JOIN plat_user_domain_relation pudr ON pudr.userId = u.c_id
+    WHERE 1=1
+        and app.dutyDate BETWEEN #{startDate} and #{endDate}
+         GROUP BY app.dutyPeopleId,app.dutyType
+        <if test="domainId != null and domainId != 1">
+            having pudr.domainId = #{domainId}
+        </if>
+    </select>
+    <!--统计值班-->
+    <select id="getSummaryDutyCount" parameterType="java.util.HashMap" resultType="com.vlinksoft.ves.dutymanage.dao.po.DutyCountPO">
+        SELECT DATE_FORMAT(duty.dutyDate,'%Y-%m') AS dutyMonth,duty.typeUserId userId,COUNT(*) AS dutyCount,NOW()>dutyDate AS state FROM itsm_duty_main_user duty,plat_user u
+        WHERE duty.typeUserId=u.c_id AND duty.TypeUserId = #{id}  AND dutyDate <![CDATA[>=]]> #{startDate} and dutyDate <![CDATA[<=]]> #{endDate} GROUP BY dutyMonth,state
+    </select>
+
+    <select id="getSummaryDutyCountByDomainId" parameterType="java.util.HashMap" resultType="com.vlinksoft.ves.dutymanage.dao.po.DutyCountPO">
+        SELECT DATE_FORMAT(duty.dutyDate,'%Y-%m') AS dutyMonth,
+            duty.typeUserId userId,
+            pudr.domainId,
+            u.c_name userName,
+            COUNT(*) AS dutyCount,
+            NOW() > dutyDate AS state
+        FROM
+            itsm_duty_main_user duty
+            LEFT JOIN plat_user u ON duty.typeUserId = u.c_id
+            LEFT JOIN plat_user_domain_relation pudr ON pudr.userId = duty.typeUserId
+        WHERE
+            1 = 1
+        and duty.dutyDate BETWEEN #{startDate} and #{endDate}
+        GROUP BY
+        duty.typeUserId,
+        state
+            <if test="domainId != null and domainId != 1">
+                having pudr.domainId = #{domainId}
+            </if>
+
+    </select>
+    <!--判断是否请假-->
+    <select id="getSummaryDutyApproveCount" parameterType="java.util.HashMap" resultType="com.vlinksoft.ves.dutymanage.dao.po.DutyApproveCountPO">
+            SELECT DATE_FORMAT(app.dutyDate,'%Y-%m') AS dutyMonth ,app.dutyPeopleId userId,u.c_name userName,COUNT(*) AS approveCount,app.dutyType FROM itsm_duty_approve app,plat_user u
+            WHERE app.dutyPeopleId=u.c_id and app.dutyPeopleId=#{id} and app.dutyDate <![CDATA[>=]]> #{startDate} and app.dutyDate <![CDATA[<=]]> #{endDate} GROUP BY dutyMonth
+    </select>
+    <select id="selectByIds" parameterType="java.util.List" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT * FROM itsm_duty_type WHERE typeId in
+        <foreach collection="list" item="man" open="(" separator="," close=")">
+            #{man}
+        </foreach>
+    </select>
+    <select id="findDutyListByDomainId" parameterType="java.util.Map" resultMap="dutyTypeList">
+      SELECT typeId,startTime,endTime,acrossDay FROM itsm_duty_type WHERE acrossDay = #{across} AND typeId != #{dutyTypeId}
+      <if test="domainId != null and domainId != 1">
+          and domainId = #{domainId}
+      </if>
+    </select>
+</mapper>

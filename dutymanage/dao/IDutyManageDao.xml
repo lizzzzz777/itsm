@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vlinksoft.ves.dutymanage.dao.DutyManageDao">  <!--更改路径名  编写下面内容-->
+
+    <select id="getDutyRecordByUID" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page">
+        SELECT
+        mu.typeName,
+        mu.startTime,
+        mu.endTime,
+        mu.dutyDate,
+        pu.c_name as typeUserName
+        FROM
+        itsm_duty_main_user mu,plat_user pu
+        WHERE mu.typeUserId = pu.c_id AND mu.typeUserId = #{condition.typeUserName}  AND mu.dutyDate &gt;= #{condition.bigenDate} AND mu.dutyDate &lt;=  #{condition.endDate}
+        <!--ORDER BY mu.dutyDate DESC-->
+    </select>
+
+    <select id="getDutyStatistics" resultType="java.util.Map" parameterType="com.vlinksoft.ves.dutymanage.Vo.DutyMonthUserQuery">
+        SELECT
+          COUNT(*) dutycount,d.typeUserId,u.c_name
+        FROM
+          itsm_duty_main_user d,plat_user u
+        WHERE d.typeUserId = u.c_id  AND dutyDate &gt;= #{startDate} AND dutyDate &lt;=  #{endDate}
+        GROUP BY d.typeUserId
+    </select>
+
+
+    <select id="getDutyStatisticsByDomainId" resultType="java.util.Map" parameterType="com.vlinksoft.ves.dutymanage.Vo.DutyMonthUserQuery">
+            SELECT
+          COUNT(*) 1dutycount,d.typeUserId,u.c_name
+        FROM
+          itsm_duty_main_user d
+          left join plat_user u
+          on d.typeUserId = u.c_id
+          LEFT JOIN `plat_user_domain_relation` pudr
+          ON pudr.userId = u.c_id
+        where
+        dutyDate &gt;= #{beginTime} AND dutyDate &lt;=  #{endTime}
+        <if test="domainId != null and domainId != 1">
+            and pudr.domainId = #{domainId}
+        </if>
+        GROUP BY d.typeUserId
+        ORDER BY dutycount DESC
+    </select>
+
+    <insert id="interDutyMainInfo" parameterType="java.util.List">
+        INSERT INTO `itsm_duty_main` (`dutyId`, `dutyDate`) VALUES <foreach collection="list" item="item" index="index" separator=",">
+        (#{item.dutyId},#{item.dutyDate})
+    </foreach>
+
+    </insert>
+    <select id="getDutyTypeList"  resultMap="getDutyTypeListMap" parameterType="java.util.Map">
+        SELECT typeId,itsm_duty_type.name, startTime, endTime FROM  itsm_duty_type WHERE itsm_duty_type.typeId IN <foreach
+            collection="list" item="item" open="(" separator="," close=")">#{item}
+    </foreach>
+    </select>
+    <select id="getUsersList" resultMap="getUsersListMap" parameterType="java.util.Map">
+        SELECT userId,userName,typeId FROM itsm_duty_type_user WHERE itsm_duty_type_user.typeId=#{typeId}
+        <if test="searchText!=null">
+            AND userName LIKE #{searchText}
+        </if>
+    </select>
+
+    <select id="findTypeUser" parameterType="java.util.Map"  resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeUserVo">
+        SELECT * from itsm_duty_type_user idtu left join itsm_duty_type idt on idtu.typeId = idt.typeId where idtu.typeId = #{typeId}
+        <if test="searchText!=null">
+            AND userName LIKE #{searchText}
+        </if>
+    </select>
+
+
+    <select id="findUserByDomainIdAndTypeId" resultMap="getUsersListMap" parameterType="java.util.Map">
+        SELECT
+            idtu.userId,
+            idtu.userName,
+            idtu.typeId
+        FROM
+            itsm_duty_type_user idtu
+            LEFT JOIN plat_user_domain_relation pudr ON idtu.userId = pudr.userId
+        WHERE
+            idtu.typeId=#{typeId}
+        <if test="searchText!=null">
+            AND userName LIKE #{searchText}
+        </if>
+        <if test="domainId != null and domainId != 1">
+            AND domainId = #{domainId}
+        </if>
+
+    </select>
+
+    <insert id="setInUser" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        INSERT INTO `itsm_duty_main_user` (`id`, `dutyId`, `typeUserId`,`dutyTypeId`,`typeUserName`,`dutyState`,`contactsId`)
+        VALUES (#{id},#{dutyId},#{typeUserId},#{dutyTypeId},#{typeUserName},#{dutyState},#{contactsId});
+    </insert>
+    <select id="setDelUserById" parameterType="java.lang.String">
+        DELETE  FROM itsm_duty_main_user WHERE itsm_duty_main_user.id=${_parameter}
+    </select>
+    <select id="checkByDutyDate" parameterType="java.lang.String" resultType="java.lang.Long">
+        SELECT dutyId FROM  itsm_duty_main WHERE dutyDate=#{shiftDate}
+    </select>
+    <insert id="insertToMainTable" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+      INSERT INTO `itsm_duty_main` (`dutyId`, `dutyDate`, `dutyStates`,listId) VALUES (#{dutyId}, #{dutyDate},#{dutyStates},#{listId});
+    </insert>
+    <insert id="insertToUserTable" parameterType="java.util.List">
+        INSERT INTO `itsm_duty_main_user` (`id`, `dutyId`, `typeUserId`, `typeUserName`,`dutyTypeId`,`startTime`,`endTime`,`typeName`,`dutyDate`,`dutyName`,`contactsId`) VALUES
+        <foreach collection="list" item="item"  index="index" separator=",">
+            ( #{item.id}, #{item.dutyId}, #{item.typeUserId}, #{item.typeUserName},#{item.dutyTypeId},#{item.startTime},#{item.endTime},#{item.typeName},#{item.dutyDate},#{item.dutyName},#{item.contactsId})
+        </foreach>
+    </insert>
+    <insert id="insertToMainListInfo" parameterType="java.util.List">
+        INSERT INTO `itsm_duty_main_user` (`id`, `dutyId`, `typeUserId`, `dutyTypeId`, `typeUserName`) VALUES <foreach
+            collection="list" item="item"  index="index" separator=",">
+        ( #{item.id}, #{item.dutyId}, #{item.typeUserId}, #{item.dutyTypeId}, #{item.typeUserName})
+    </foreach>
+
+    </insert>
+
+    <insert id="addWeek" parameterType="java.util.List">
+        INSERT INTO `itsm_duty_main_week` (`id`, `dutyId`, `typeUserId`,`dutyTypeId`,`typeUserName`,`startTime`,`overTime`,`typeName`,`dutyDate`,`dutyName`,`arrangeState`,bigenDate,endDate) VALUES
+        <foreach collection="list" item="item"  index="index" separator=",">
+            ( #{item.id}, #{item.dutyId}, #{item.typeUserId},#{item.dutyTypeId}, #{item.typeUserName},#{item.startTime},#{item.overTime},#{item.typeName},#{item.dutyDate},#{item.dutyName},#{item.arrangeState},#{item.bigenDate},#{item.endDate})
+        </foreach>
+    </insert>
+
+    <select id="findWeek" parameterType="java.util.List" resultType="com.vlinksoft.ves.dutymanage.bo.DutyWeekUserVo">
+        SELECT * FROM itsm_duty_main_week order by dutyDate asc
+    </select>
+
+
+
+    <select id="findDutyMainUserListByListID" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        SELECT * FROM itsm_duty_list a
+        LEFT JOIN `itsm_duty_main` b ON a.id = b.listId
+        LEFT JOIN `itsm_duty_main_user` c ON b.dutyId = c.dutyId
+        WHERE a.id =#{listId}
+    </select>
+
+    <!--jwt 获取startTime和endTime-->
+    <select id="selectDutyMainUserListByListID" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+         SELECT a.id,a.domainId,b.dutyId,b.dutyDate,b.listId,b.dutyStates,c.dutyTypeId,c.typeUserId,c.typeUserName,c.startTime,c.endTime,c.dutyName FROM itsm_duty_list a
+        LEFT JOIN `itsm_duty_main` b ON a.id = b.listId
+        LEFT JOIN `itsm_duty_main_user` c ON b.dutyId = c.dutyId
+        WHERE a.id =#{listId}
+    </select>
+
+    <select id="findDutyMainUserListByDate" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        SELECT c.* FROM itsm_duty_list a
+        LEFT JOIN `itsm_duty_main` b ON a.id = b.listId
+        LEFT JOIN `itsm_duty_main_user` c ON b.dutyId = c.dutyId
+         where b.listId= #{listId} and b.dutyDate &gt;= #{startTime} and b.dutyDate &lt;= #{endTime}
+    </select>
+
+
+    <select id="findDutyMainUserListByDutyId" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+         SELECT b.*
+        FROM `itsm_duty_main` a
+        LEFT JOIN `itsm_duty_main_user` b ON a.dutyId = b.dutyId
+        WHERE a.dutyId = #{dutyId}
+    </select>
+
+    <select id="findDutyMainByListIdByDate" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+          SELECT a.*
+        FROM `itsm_duty_main` a
+        where a.listId= #{listId} and a.dutyDate &gt;= #{startTime} and a.dutyDate &lt;= #{endTime}
+    </select>
+
+    <delete id="deleteDutyMainByDate"  parameterType="java.util.Map" >
+        delete from itsm_duty_main where listId= #{listId} and dutyDate &gt;= #{startTime} and dutyDate &lt;= #{endTime}
+    </delete>
+
+    <delete id="deleteDutyMainByListId" parameterType="java.lang.Long">
+        delete from itsm_duty_main where listId= #{listId}
+    </delete>
+
+    <select id="findDutyMainUserByTypeId" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+         SELECT a.*,ca.id as contactsId,ca.name as contactsName,ca.email as contactsEmail,ca.mobile as contactsPhone FROM itsm_duty_main_user a
+         left join itsm_cmdb_cm_contacts ca on a.contactsId = ca.id
+          WHERE a.dutyId = #{dutyId}
+    </select>
+
+
+    <insert id="insertDutyTypeRecord" parameterType="java.util.List">
+        INSERT INTO `itsm_duty_type_record` (`dutyId`, `typeId`, `name`, `startTime`, `endTime`) VALUES <foreach
+            collection="list" item="item"  index="index" separator=",">
+        ( #{item.dutyId}, #{item.typeId}, #{item.name}, #{item.startTime}, #{item.endTime})
+    </foreach>
+    </insert>
+    <select id="selectDutyListInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+        <!-- SELECT m.dutyId,m.dutyDate,u.*
+            FROM itsm_duty_main m
+            LEFT JOIN (SELECT mu.*,t.`name`,t.acrossDay  FROM itsm_duty_main_user mu LEFT JOIN itsm_duty_type t ON t.typeId = mu.dutyTypeId) u
+            ON m.dutyId = u.dutyId
+            WHERE 1=1
+            <if test="startTime!='' and endTime != ''">
+                AND m.dutyDate BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="startTime != '' and endTime == ''">
+                AND m.dutyDate > #{startTime}
+            </if>
+        ORDER BY m.dutyDate-->
+        <!-- SELECT m.dutyId,m.dutyDate,u.id,u.typeUserId,u.typeUserName,u.dutyState,u.startTime,u.endTime,u.typeName AS name,t.typeId,u.typeName,u.dutyTypeId
+         FROM itsm_duty_main m JOIN itsm_duty_main_user u ON m.dutyId = u.dutyId  JOIN itsm_duty_type t ON  t.typeId=u.dutyTypeId
+         WHERE 1=1 -->
+        select * from itsm_duty_main
+        WHERE 1=1
+          AND dutyStates = 0
+        <if test="startTime!='' and endTime != ''">
+            AND dutyDate BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="startTime != '' and endTime == ''">
+            AND dutyDate > #{startTime}
+        </if>
+        ORDER BY dutyDate
+    </select>
+
+    <select id="selectAllDutyList"  parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+        select * from itsm_duty_main
+        WHERE 1=1
+        <if test="startTime!='' and endTime != ''">
+            AND dutyDate BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="startTime != '' and endTime == ''">
+            AND dutyDate > #{startTime}
+        </if>
+        ORDER BY dutyDate
+    </select>
+
+
+
+    <select id="selectDutyTypeById" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+      SELECT * FROM itsm_duty_type_record WHERE dutyId=#{dutyId} ORDER BY startTime
+    </select>
+    <select id="selectDutyManById" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+       SELECT u.*,t.typeId,ca.id as contactsId,ca.name as contactsName,ca.email as contactsEmail,ca.mobile as contactsPhone
+        FROM itsm_duty_main_user u JOIN itsm_duty_type t ON u.dutyTypeId=t.typeId
+        left join itsm_cmdb_cm_contacts ca on u.contactsId = ca.id
+        WHERE u.dutyId=#{dutyId}
+        and u.typeUserId &lt;&gt; 0
+    </select>
+
+    <select id="findDutyTypeClassByDomainId" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT idtr.* FROM itsm_duty_type_record idtr
+        LEFT JOIN `itsm_duty_type` idt ON idt.typeId = idtr.typeId
+        WHERE idtr.dutyId=#{dutyId}
+        <if test="domainId != null and domainId != 1">
+            AND idt.domainId = #{domainId}
+        </if>
+        ORDER BY idtr.startTime
+    </select>
+    <select id="findDutyTypeById" parameterType="java.util.List" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT idtr.*,idt.startTime AS typeStartTime,idt.endTime AS typeEndTime  FROM itsm_duty_type_record idtr
+        LEFT JOIN `itsm_duty_type` idt ON idt.typeId = idtr.typeId
+        WHERE idtr.dutyId=#{dutyId}
+    </select>
+
+
+
+    <select id="findDutyManById" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        SELECT
+            u.*,
+            t.typeId,
+            ca.id as contactsId,ca.name as contactsName,ca.email as contactsEmail,ca.mobile as contactsPhone
+        FROM
+            itsm_duty_main_user u
+            LEFT JOIN itsm_duty_type t ON u.dutyTypeId = t.typeId
+            LEFT JOIN plat_user_domain_relation pudr ON pudr.userId = u.typeUserId
+            LEFT JOIN itsm_cmdb_cm_contacts ca ON u.contactsId = ca.id
+        WHERE
+            u.dutyId = #{dutyId}
+            <if test="domainId != null and domainId != 1">
+                AND pudr.domainId = #{domainId}
+            </if>
+
+    </select>
+    <insert id="insertToMainLineInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+     INSERT INTO `itsm_duty_main` (`dutyId`, `dutyDate`) VALUES (#{dutyId}, #{dutyDate});
+    </insert>
+    <select id="getMaxDateToMain" resultType="java.util.Date">
+        SELECT MAX(dutyDate) FROM itsm_duty_main
+    </select>
+
+    <select id="findDutyMainByListId" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+        select * from itsm_duty_main where listId = #{listId}
+    </select>
+
+    <select id="getMaxDateByDomainId" parameterType="java.lang.Long" resultType="java.util.Date">
+        SELECT MAX(idm.dutyDate) FROM itsm_duty_main idm LEFT JOIN `itsm_duty_main_user`  idmu ON idm.dutyId = idmu.dutyId
+        LEFT JOIN `itsm_duty_type` idt ON idt.typeId =idmu.dutyTypeId
+        WHERE 1=1
+        <if test="_parameter  != null and _parameter  !=1">
+           and idt.domainId = #{domainId}
+        </if>
+
+    </select>
+    <select id="getMinDateToMain" resultType="java.lang.String">
+        SELECT MIN(dutyDate) FROM itsm_duty_main
+    </select>
+    <update id="updateDutyStateToUser" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+       UPDATE itsm_duty_main_user SET dutyState=#{dutyState} WHERE id=#{id}
+    </update>
+
+    <delete id="delLineUserByIds" parameterType="java.lang.String">
+         DELETE  FROM itsm_duty_main_user WHERE itsm_duty_main_user.id in (${_parameter})
+    </delete>
+
+    <delete id="delWeekUserByIds" parameterType="java.lang.String">
+         DELETE  FROM itsm_duty_main_week WHERE itsm_duty_main_week.id in (${_parameter})
+    </delete>
+
+    <delete id="delMainUserByIds" parameterType="java.lang.String">
+         DELETE  FROM itsm_duty_main_user WHERE itsm_duty_main_user.id in (${_parameter})
+    </delete>
+
+    <delete id="delWeekUsers">
+         DELETE  FROM itsm_duty_main_week
+    </delete>
+
+    <select id="getMainUserId"  parameterType="com.vlinksoft.ves.dutymanage.bo.DutyUserVo" resultType="java.lang.Integer">
+        SELECT userId FROM  itsm_duty_type_user WHERE itsm_duty_type_user.typeId=#{typeId} AND itsm_duty_type_user.userName=#{userName}
+    </select>
+    <select id="getDutyDateByUserId" parameterType="java.util.Map" resultMap="selectDutyListInfoMap">
+        SELECT
+        u.id,
+        u.dutyId,
+        u.typeUserId,
+        u.dutyTypeId,
+        u.typeUserName,
+        u.dutyState,
+        u.startTime,
+        u.endTime,
+        u.typeName AS name,
+        u.dutyDate
+        FROM itsm_duty_main_user u ,itsm_duty_main m WHERE m.dutyId=u.dutyId AND u.typeUserId=#{userId}
+        <if test="startDate!=null and endDate != null">
+            AND u.dutyDate <![CDATA[>=]]> #{startDate} AND u.dutyDate <![CDATA[<=]]> #{endDate}
+        </if>
+        <if test="startDate != null and endDate == null">
+            AND u.dutyDate > #{startDate}
+        </if>
+    </select>
+
+    <select id="getAllDutyDateByDomainId" parameterType="java.util.Map" resultMap="selectDutyListInfoMap">
+        SELECT
+        u.id,
+        u.dutyId,
+        u.typeUserId,
+        u.dutyTypeId,
+        u.typeUserName,
+        u.dutyState,
+        u.startTime,
+        u.endTime,
+        u.dutyName,
+        u.typeName AS NAME,
+        u.dutyDate,
+        cm.name contactsName
+        FROM itsm_duty_main_user u
+        LEFT JOIN itsm_duty_main m ON u.dutyId=m.dutyId
+        LEFT JOIN itsm_cmdb_cm_contacts cm ON u.contactsId=cm.id
+        LEFT JOIN itsm_duty_list d ON m.listId= d.id
+        WHERE m.dutyId=u.dutyId
+        <if test="domainId!=null">
+            AND d.domainId = #{domainId}
+        </if>
+        <if test="startDate!=null and endDate != null">
+            AND u.dutyDate <![CDATA[>=]]> #{startDate} AND u.dutyDate <![CDATA[<=]]> #{endDate}
+        </if>
+        <if test="startDate != null and endDate == null">
+            AND u.dutyDate > #{startDate}
+        </if>
+    </select>
+
+    <select id = "getLeaveDateByUserId" parameterType="java.util.Map" resultType="java.lang.Long">
+        SELECT COUNT(a.id) FROM itsm_duty_approve a WHERE a.dutyPeopleId = #{userId} AND a.dutyState = '1' AND a.dutyDate <![CDATA[>=]]> #{startDate} AND a.dutyDate <![CDATA[<=]]> #{endDate}
+    </select>
+    <select id="getDepartmentNameByUserId" parameterType="java.lang.Long" resultType="java.lang.String">
+         SELECT name  FROM plat_organization WHERE id=#{userId}
+    </select>
+    <select id="getDutyClassByTime" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT u.dutyId,u.typeName AS name,u.startTime,u.endTime,t.typeId FROM itsm_duty_main_user u JOIN itsm_duty_type t ON u.dutyTypeId=t.typeId  WHERE u.typeUserId=#{userId} AND u.dutyDate like #{shiftTime}
+    </select>
+    <select id="getShiftDutyClassByTime" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT  u.dutyId,u.typeName AS name,u.startTime,u.endTime,t.typeId FROM itsm_duty_main_user u JOIN itsm_duty_type t ON u.dutyTypeId=t.typeId  WHERE u.dutyDate >= #{dayStart} AND u.dutyDate &lt;= #{dayEnd} GROUP BY typeId
+    </select>
+
+    <insert id="addManInfo" parameterType="java.util.List">
+        INSERT INTO `itsm_duty_main_user` (`id`, `dutyId`, `typeUserId`, `typeUserName`,dutyTypeId,startTime,endTime,typeName,dutyDate,dutyName) VALUES
+        <foreach collection="list" item="item"  index="index" separator=",">
+            ( #{item.id}, #{item.dutyId}, #{item.typeUserId}, #{item.typeUserName},#{item.dutyTypeId},#{item.startTime},#{item.endTime},#{item.typeName},#{item.dutyDate},#{item.dutyName})</foreach>
+    </insert>
+
+    <insert id="addMans" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyWeekUserVo">
+        INSERT INTO `itsm_duty_main_week` (`id`, `dutyId`, `typeUserId`, `typeUserName`,`dutyTypeId`,`startTime`,`overTime`,`typeName`,`dutyDate`,`arrangeState`,`dutyState`) VALUES
+        <foreach collection="list" item="item"  index="index" separator=",">
+            ( #{item.id}, #{item.dutyId}, #{item.typeUserId}, #{item.typeUserName},#{item.dutyTypeId},#{item.startTime},#{item.overTime},#{item.typeName},#{item.dutyDate},#{item.arrangeState},#{item.dutyState})
+        </foreach>
+    </insert>
+
+    <insert id="addDutyMans" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        INSERT INTO `itsm_duty_main_user` (`id`, `dutyId`, `typeUserId`, `typeUserName`,`dutyTypeId`,`startTime`,`endTime`,`typeName`,`dutyDate`,`dutyState`) VALUES
+        <foreach collection="list" item="item"  index="index" separator=",">
+            ( #{item.id}, #{item.dutyId}, #{item.typeUserId}, #{item.typeUserName},#{item.dutyTypeId},#{item.startTime},#{item.endTime},#{item.typeName},#{item.dutyDate},#{item.dutyState})
+        </foreach>
+    </insert>
+
+    <update id="updateDutyMainUser" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        update itsm_duty_main_user
+        <set>
+            <if test="typeUserId!=null and typeUserId!=0">
+                typeUserId = #{typeUserId},
+            </if>
+            <if test="typeUserName!=null and typeUserName!=''">
+                typeUserName = #{typeUserName}
+            </if>
+        </set>
+        where 1 = 1
+        <if test="id != null and id!=0">
+            and id = #{id}
+        </if>
+        <if test="dutyId != null and dutyId!=0">
+            and dutyId = #{dutyId}
+        </if>
+        <if test="dutyTypeId != null and dutyTypeId!=0">
+            and dutyTypeId = #{dutyTypeId}
+        </if>
+    </update>
+
+    <select id="getDutyMainByDate" parameterType="java.lang.String" resultMap="selectDutyListInfoMap">
+        SELECT * FROM itsm_duty_main WHERE dutyDate = #{date}
+    </select>
+    <select id="getDutyInfoByDutyDate" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        SELECT u.,m.*,ca.id as contactsId,ca.name as contactsName,ca.email as contactsEmail,ca.mobile as contactsPhone
+        FROM itsm_duty_main_user u,itsm_duty_main m
+        LEFT JOIN itsm_cmdb_cm_contacts ca ON u.contactsId = ca.id
+         WHERE  1=1
+        <if test="startTime!='' and endTime != ''">
+            AND m.dutyDate BETWEEN #{startTime} AND #{endTime}
+        </if>
+    </select>
+    <resultMap id="selectDutyListInfoMap" type="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+        <id column="dutyId" property="dutyId"></id>
+        <result column="dutyDate" property="dutyDate"></result>
+        <collection property="dutyMainUser" ofType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+            <id column="id" property="id"></id>
+            <result column="typeId" property="typeId"></result>
+            <result column="dutyId" property="dutyId"></result>
+            <result  column="typeUserId" property="typeUserId"></result>
+            <result column="dutyTypeId" property="dutyTypeId"></result>
+            <result column="typeUserName" property="typeUserName"></result>
+            <result column="dutyState" property="dutyState"></result>
+            <result column="dutyName" property="dutyName"></result>
+            <result column="startTime" property="startTime"></result>
+            <result column="endTime" property="endTime"></result>
+            <result column="typeName" property="typeName"></result>
+            <result column="dutyDate" property="dutyDate"></result>
+            <result column="contactsId" property="contactsId"></result>
+            <result column="contactsName" property="contactsName"></result>
+            <result column="contactsPhone" property="contactsPhone"></result>
+            <result column="contactsEmail" property="contactsEmail"></result>
+            <result column="onDutyDate" property="onDutyDate"></result>
+            <result column="offDutyDate" property="offDutyDate"></result>
+        </collection>
+        <collection property="dutyTypeVoList" ofType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+            <id column="typeId" property="typeId"></id>
+            <result column="name" property="name"></result>
+            <result column="startTime" property="startTime"></result>
+            <result column="endTime" property="endTime"></result>
+            <result column="dutyId" property="dutyId"></result>
+        </collection>
+    </resultMap>
+
+    <resultMap id="getDutyTypeListMap" type="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        <id column="typeId" property="typeId"></id>
+        <result  column="name" property="name"></result>
+        <result column="startTime" property="startTime"></result>
+        <result column="endTime" property="endTime"></result>
+    </resultMap>
+    <resultMap id="getUsersListMap" type="com.vlinksoft.ves.dutymanage.bo.DutyUserVo">
+        <id column="userId" property="userId"></id>
+        <result column="typeId" property="typeId"></result>
+        <result column="userName" property="userName"></result>
+    </resultMap>
+    <!--根据指定日期查询当天值班人信息-->
+    <select id="getDutyUserByDate" parameterType="java.lang.String" resultMap="dutyMainUserVo">
+      SELECT DISTINCT u.typeUserId AS userId,u.typeUserName AS userName
+      FROM itsm_duty_main m LEFT JOIN itsm_duty_main_user u ON m.dutyId = u.dutyId WHERE m.dutyDate = #{today}
+    </select>
+    <resultMap id="dutyMainUserVo" type="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        <result column="dutyId" property="dutyId"></result>
+        <result column="userId" property="typeUserId"></result>
+        <result column="userName" property="typeUserName"></result>
+    </resultMap>
+
+    <select id="getUserDutyInfoList" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" resultType="com.vlinksoft.ves.dutymanage.Vo.DutyMonthUser">
+            SELECT
+              u.typeUserId AS userId,
+              u.typeUserName AS userName,
+              COUNT(u.typeUserId) AS dutySum
+            FROM itsm_duty_main_user u
+            LEFT JOIN itsm_duty_main m ON u.dutyId = m.dutyId
+            WHERE m.dutyDate <![CDATA[>=]]> 2018
+            AND m.dutyDate <![CDATA[<=]]> 2019
+            GROUP BY u.typeUserId order BY dutySum DESC
+    </select>
+
+
+    <select id="getTypeNumByUserId" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT
+        COUNT(*)
+        FROM
+        itsm_duty_approve p
+        WHERE
+        p.dutyPeopleId = #{userId}
+        AND p.dutyType = #{dutyType}
+        AND p.dutyMainId IN (
+        SELECT
+        dutyId
+        FROM
+        itsm_duty_main
+        WHERE
+        dutyDate <![CDATA[>=]]> #{startDate}
+        AND dutyDate <![CDATA[<=]]> #{endDate})
+    </select>
+
+    <select id="getHasDutyMonth" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT
+          COUNT(*)
+        FROM
+          itsm_duty_main_user u
+        LEFT JOIN itsm_duty_main m ON u.dutyId = m.dutyId
+        LEFT JOIN itsm_duty_type t ON u.dutyTypeId = t.typeId
+        WHERE
+          u.typeUserId = #{userId}
+        AND m.dutyDate <![CDATA[>=]]> #{startDate}
+        AND (m.dutyDate <![CDATA[<]]> #{endDate} OR (m.dutyDate = #{endDate} AND t.endTime <![CDATA[<=]]> #{nowHour}))
+    </select>
+
+
+
+    <select id="getUnDutyMonth" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT
+          COUNT(*)
+        FROM
+          itsm_duty_main_user u
+        LEFT JOIN itsm_duty_main m ON u.dutyId = m.dutyId
+        LEFT JOIN itsm_duty_type t ON u.dutyTypeId = t.typeId
+        WHERE
+          u.typeUserId = #{userId}
+        AND m.dutyDate <![CDATA[<=]]> #{endDate}
+        AND (m.dutyDate <![CDATA[>]]> #{startDate} OR (m.dutyDate = #{startDate} AND t.endTime <![CDATA[>]]> #{nowHour}))
+    </select>
+    <select id="getShiftDutyClassByTimeAndDutyType" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+       SELECT * FROM itsm_duty_main_user WHERE dutyDate >= #{dayStart} AND dutyDate &lt;= #{dayEnd} AND dutyTypeId=#{shiftType}
+    </select>
+
+    <select id="queryDutyMainUser" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        select * from itsm_duty_main_user where 1=1
+        <if test="condition.id != null and condition.id != 0">
+            and id = #{condition.id}
+        </if>
+        <if test="condition.dutyId != null and condition.dutyId != 0">
+            and dutyId = #{condition.dutyId}
+        </if>
+        <if test="condition.typeUserId != null and condition.typeUserId != 0">
+            and typeUserId = #{condition.typeUserId}
+        </if>
+        <if test="condition.dutyTypeId != null and condition.dutyTypeId != 0">
+            and dutyTypeId = #{condition.dutyTypeId}
+        </if>
+        <if test="condition.typeUserName != null">
+            and typeUserName like concat ('%',#{condition.typeUserName},'%')
+        </if>
+        <if test="condition.dutyState != null and condition.dutyState != 0">
+            and dutyState = #{condition.dutyState}
+        </if>
+        <if test="condition.typeName != null">
+            and typeName like concat ('%',#{condition.typeName},'%')
+        </if>
+        <if test="condition.queryStartTime != null">
+            and dutyDate > #{condition.queryStartTime}
+        </if>
+        <if test="condition.queryEndTime != null">
+            and dutyDate &lt; #{condition.queryEndTime}
+        </if>
+        <if test="condition.dutyStatus != null and condition.dutyStatus != 0">
+            and dutyStatus = #{condition.dutyStatus}
+        </if>
+        <if test="condition.onDutyDate != null">
+            and onDutyDate > #{condition.onDutyDate}
+        </if>
+        <if test="condition.offDutyDate != null">
+            and offDutyDate &lt; #{condition.offDutyDate}
+        </if>
+    </select>
+
+    <select id="dutyTypeListAll" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT
+            typeId,
+            NAME,
+            startTime,
+            endTime,
+            phone,
+            acrossDay
+        FROM
+            itsm_duty_type
+    </select>
+
+    <select id="listAllByDomainId" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" parameterType="java.util.Map">
+          SELECT
+            typeId,
+            NAME,
+            startTime,
+            endTime,
+            phone,
+            acrossDay
+        FROM
+            itsm_duty_type
+            where 1 = 1
+            <if test="domainId!=null">
+                and domainId = #{domainId}
+            </if>
+    </select>
+
+    <select id="findMinId"  resultType="java.lang.Long">
+        select dutyId from itsm_duty_main where dutyState = 1 order by dutyDate asc
+    </select>
+    
+
+
+    <select id="findAllDutyTypeByDomainId" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo">
+        SELECT
+            typeId,
+            NAME,
+            startTime,
+            endTime,
+            phone,
+            acrossDay
+            domainId
+        FROM
+            itsm_duty_type
+          where 1 = 1
+          <if test="_parameter  != null and _parameter  !=1">
+              and domainId = #{domainId,jdbcType=BIGINT}
+          </if>
+    </select>
+
+    <select id="findDesc" resultType="java.util.Date">
+        select  dutyDate from itsm_duty_main_week order by dutyDate desc limit 1
+    </select>
+
+    <select id="findAsc" resultType="java.util.Date">
+        select  dutyDate from itsm_duty_main_week order by dutyDate asc limit 1
+    </select>
+
+    <select id="findDutyTime" parameterType="java.util.List" resultType="java.lang.Long">
+        SELECT dutyId FROM itsm_duty_main_week
+
+    </select>
+    <select id="findWeekDuty" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyWeekUserVo">
+        SELECT * FROM itsm_duty_main_week where dutyId = #{dutyId}
+    </select>
+
+    <delete id="deleteRecordByDutyId" parameterType="java.lang.Long">
+        delete from itsm_duty_type_record where dutyId = #{dutyId}
+    </delete>
+
+    <select id="findAllDutyList" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyTypeVo" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMain">
+        select * from itsm_duty_main a
+        left join itsm_duty_list b on a.listId = b.id
+        WHERE 1=1
+        <if test="startTime!='' and endTime != ''">
+            AND dutyDate BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="startTime != '' and endTime == ''">
+            AND dutyDate > #{startTime}
+        </if>
+        <if test="domainId != null">
+            AND domainId = #{domainId}
+        </if>
+        ORDER BY dutyDate
+    </select>
+
+    <update id="upDateDutyUserContactsInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        update itsm_duty_main_user
+         set contactsId = #{contactsId}
+         where dutyId = #{dutyId} and dutyTypeId = #{dutyTypeId}
+    </update>
+
+
+
+    <insert id="addDutyLog" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+       INSERT INTO itsm_duty_log(
+            id,dutyId,dutyTypeId,dutyLog,
+            subDutyLogTime,subDutyUserId,
+            logStatus
+        ) VALUES (
+          #{id},#{dutyId},#{dutyTypeId},#{dutyLog},
+          #{subDutyLogTime},#{subDutyUserId},
+          #{logStatus}
+        )
+    </insert>
+
+    <select id="getDutyLogBydutyTime" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+        select * from itsm_duty_log where 1 = 1
+        <if test="dutyTime != null">
+            and subDutyLogTime like concat ('%',#{dutyTime},'%')
+        </if>
+        and subDutyUserId = #{subDutyLogUserId} order by subDutyLogTime
+    </select>
+
+    <select id="findDutyLog" parameterType="java.util.List" resultType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+        select * from itsm_duty_log
+        where dutyId=#{dutyId}
+        and subDutyUserId=#{subDutyUserId}
+    </select>
+
+    <select id="findNewDutyLog" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+         select * from itsm_duty_log
+        where dutyId=#{dutyId}
+        and dutyTypeId=#{dutyTypeId}
+        and subDutyUserId=#{subDutyUserId}
+    </select>
+
+    <select id="findAdminDutyLog" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+        select * from itsm_duty_log
+        where dutyId=#{dutyId}
+        and dutyTypeId=#{dutyTypeId}
+    </select>
+
+    <update id="updateDutyLog" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+        update itsm_duty_log set dutyId = #{dutyId},dutyTypeId=#{dutyTypeId},dutyLog = #{dutyLog},subDutyLogTime=#{subDutyLogTime},
+          logStatus=#{logStatus},subDutyUserId=#{subDutyUserId}
+        where id = #{id}
+    </update>
+
+    <delete id="delDutyLogById" parameterType="java.lang.Long">
+        delete from itsm_duty_log where id = #{id}
+    </delete>
+
+    <select id="getMyDutyPage" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page">
+        SELECT u.*,t.typeId,ca.id AS contactsId,ca.name AS contactsName,ca.email AS contactsEmail,ca.mobile AS contactsPhone
+        FROM itsm_duty_main_user u JOIN itsm_duty_type t ON u.dutyTypeId=t.typeId
+        LEFT JOIN itsm_cmdb_cm_contacts ca ON u.contactsId = ca.id
+        LEFT JOIN itsm_duty_main m ON u.dutyId = m.dutyId
+        LEFT JOIN itsm_duty_list l ON m.listId = l.id
+        WHERE 1 = 1
+        <if test="condition!=null">
+            <if test="condition.domainId != null and condition.domainId != 1">
+                AND l.domainId = #{condition.domainId}
+            </if>
+            <if test="condition.startTime != null and condition.startTime != ''">
+                AND u.dutyDate &gt;= #{condition.startTime}
+            </if>
+            <if test="condition.endTime != null and condition.endTime != ''">
+                AND u.dutyDate &lt;=  #{condition.endTime}
+            </if>
+            <if test="condition.userId != null and condition.userId != 0">
+                AND u.typeUserId =  #{condition.userId}
+            </if>
+        </if>
+        ORDER  BY u.dutyDate DESC
+    </select>
+
+    <update id="updateDutyUserStatus" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+        update itsm_duty_main_user u
+        <set>
+            <if test="dutyStatus!=null">
+                dutyStatus = #{dutyStatus},
+            </if>
+            <if test="onDutyDate!=null and onDutyDate!=''">
+                onDutyDate = #{onDutyDate},
+            </if>
+            <if test="offDutyDate!=null and offDutyDate!=''">
+                offDutyDate = #{offDutyDate}
+            </if>
+        </set>
+        where u.id = #{id}
+    </update>
+
+    <select id="getLogListByDutyIdAndTypeId" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+        select * from itsm_duty_log
+        where dutyId=#{dutyId}
+        and dutyTypeId=#{dutyTypeId}
+        and subDutyUserId = #{subDutyUserId}
+    </select>
+
+
+    <select id="findDutyMainTypeListByCDate" resultType="com.vlinksoft.ves.dutymanage.bo.DutyTypeJobVo" parameterType="java.lang.String">
+        SELECT c.dutyId,b.typeId,b.name AS typeName,c.dutyDate,b.startTime,b.endTime,b.acrossDay FROM `itsm_duty_main_user` a
+        LEFT JOIN itsm_duty_main c ON a.dutyId = c.dutyId
+        LEFT JOIN itsm_duty_type b ON a.dutyTypeId = b.typeId
+        WHERE c.dutyDate = #{currentDate}
+        GROUP BY  b.typeId
+    </select>
+
+
+    <select id="findUserListByDutyIdAndTypeId" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo" parameterType="java.util.Map">
+        select * from itsm_duty_main_user where dutyId = #{dutyId} and dutyTypeId = #{dutyTypeId} and dutyStatus = #{dutyStatus}
+    </select>
+
+    <update id="batchOffDutyList" parameterType="java.util.Map">
+        update itsm_duty_main_user set
+        offDutyDate = #{offDutyDate},
+        dutyStatus = #{dutyStatus}
+        where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateDutyLogByDutyTypeUser" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyLog">
+        update itsm_duty_log
+        set logStatus = #{logStatus}
+        where dutyId = #{dutyId} and subDutyUserId = #{subDutyUserId} and dutyTypeId = #{dutyTypeId}
+    </update>
+</mapper>

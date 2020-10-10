@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="com.vlinksoft.ves.dutymanage.dao.DutyApproveDao">  <!--更改路径名  编写下面内容-->
+
+
+
+
+    <select id="approveList"  resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" databaseId="mysql">
+      <!-- SELECT
+       id,
+       dutyMainId,
+       dutyClassId,
+       dutyPeopleId,
+       dutyType,
+       shiftMainId,
+       shiftClassId,
+       shiftPeopleId,
+       dutyState,
+       reason,
+       dutyOpinion,
+        a.noPassReason,
+       m.dutyDate AS dutyDate,
+       m_.dutyDate AS shiftDate,
+       u.c_name AS dutyPeople,
+       u_.c_name AS shiftPeople,
+       t.`name` AS dutyClass,
+       t_.`name` AS shiftClass
+       FROM
+       itsm_duty_approve a
+       LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+       LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+       LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+       LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+       LEFT JOIN itsm_duty_main m ON m.dutyId = a.dutyMainId
+       LEFT JOIN itsm_duty_main m_ ON m_.dutyId = a.shiftMainId -->
+        SELECT id,dutyMainId,dutyClassId,dutyPeopleId,dutyType,shiftMainId,shiftClassId, shiftPeopleId, dutyState,reason,dutyOpinion, a.noPassReason,a.dutyDate,
+        a.shiftDate AS shiftDate,
+        u.c_name AS dutyPeople,
+        u_.c_name AS shiftPeople,
+        t.`name` AS dutyClass,
+        t_.`name` AS shiftClass
+        FROM
+        itsm_duty_approve a LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+        LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+        LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+        LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+        WHERE
+       u.c_name LIKE #{condition.dutyPeople}
+        <if test="condition.dutyDate!=null">
+            AND m.dutyDate = #{condition.dutyDate}
+        </if>
+       ORDER BY a.approveDate DESC
+    </select>
+
+    <select id="leaveList"  resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" databaseId="mysql">
+        SELECT id,dutyMainId,dutyClassId,dutyPeopleId,dutyType,a.approveDate,shiftMainId,shiftClassId, shiftPeopleId, dutyState,reason,dutyOpinion, a.noPassReason,a.dutyDate,
+        a.shiftDate AS shiftDate,
+        u.c_name AS dutyPeople,
+        u_.c_name AS shiftPeople,
+        t.`name` AS dutyClass,
+        t_.`name` AS shiftClass
+        FROM
+        itsm_duty_approve a LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+        LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+        LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+        LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+        WHERE
+        u.c_name LIKE #{condition.dutyPeople} and
+        dutyType = '请假' and
+        dutyState = 0
+        <if test="condition.dutyDate!=null">
+            AND m.dutyDate = #{condition.dutyDate}
+        </if>
+        ORDER BY a.approveDate DESC
+    </select>
+    <select id="leftList"  resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" databaseId="mysql">
+        SELECT id,dutyMainId,dutyClassId,a.approveDate,dutyPeopleId,dutyType,shiftMainId,shiftClassId, shiftPeopleId, dutyState,reason,dutyOpinion, a.noPassReason,a.dutyDate,
+        a.shiftDate AS shiftDate,
+        u.c_name AS dutyPeople,
+        u_.c_name AS shiftPeople,
+        t.`name` AS dutyClass,
+        t_.`name` AS shiftClass
+        FROM
+        itsm_duty_approve a LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+        LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+        LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+        LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+        WHERE
+        u.c_name LIKE #{condition.dutyPeople} and
+        dutyType = '请假' and
+        dutyState = 1
+        <if test="condition.dutyDate!=null">
+            AND m.dutyDate = #{condition.dutyDate}
+        </if>
+        ORDER BY a.approveDate DESC
+    </select>
+
+    <select id="exchangeList"  resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" databaseId="mysql">
+        SELECT id,dutyMainId,dutyClassId,a.approveDate,dutyPeopleId,dutyType,shiftMainId,shiftClassId, shiftPeopleId, dutyState,reason,dutyOpinion, a.noPassReason,a.dutyDate,
+        a.shiftDate AS shiftDate,
+        u.c_name AS dutyPeople,
+        u_.c_name AS shiftPeople,
+        t.`name` AS dutyClass,
+        t_.`name` AS shiftClass
+        FROM
+        itsm_duty_approve a LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+        LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+        LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+        LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+        WHERE
+        u.c_name LIKE #{condition.dutyPeople} and
+        dutyType = '换班' and
+        dutyState = 0
+        <if test="condition.dutyDate!=null">
+            AND m.dutyDate = #{condition.dutyDate}
+        </if>
+        ORDER BY a.approveDate DESC
+    </select>
+    <select id="exchangedList"  resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy" parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" databaseId="mysql">
+        SELECT id,dutyMainId,dutyClassId,a.approveDate,dutyPeopleId,dutyType,shiftMainId,shiftClassId, shiftPeopleId, dutyState,reason,dutyOpinion, a.noPassReason,a.dutyDate,
+        a.shiftDate AS shiftDate,
+        u.c_name AS dutyPeople,
+        u_.c_name AS shiftPeople,
+        t.`name` AS dutyClass,
+        t_.`name` AS shiftClass
+        FROM
+        itsm_duty_approve a LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+        LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+        LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+        LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+        WHERE
+        u.c_name LIKE #{condition.dutyPeople} and
+        dutyType = '换班' and
+        dutyState = 1
+        <if test="condition.dutyDate!=null">
+            AND m.dutyDate = #{condition.dutyDate}
+        </if>
+        ORDER BY a.approveDate DESC
+    </select>
+
+
+
+    <select id="myApplyList" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy"
+        parameterType="com.vlinksoft.ves.platform.mybatis.plugin.pagination.Page" databaseId="mysql">
+        SELECT
+           id,
+           approveDate,
+           dutyMainId,
+           dutyClassId,
+           dutyPeopleId,
+           dutyType,
+           shiftMainId,
+           shiftClassId,
+           shiftPeopleId,
+           shiftDate,
+           dutyState,
+           reason,
+           dutyOpinion,
+           m.dutyDate AS dutyDate,
+           m_.dutyDate AS shiftDate,
+           u.c_name AS dutyPeople,
+           u_.c_name AS shiftPeople,
+           t.`name` AS dutyClass,
+           t_.`name` AS shiftClass
+           FROM
+           itsm_duty_approve a
+           LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+           LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+           LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+           LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+           LEFT JOIN itsm_duty_main m ON m.dutyId = a.dutyMainId
+           LEFT JOIN itsm_duty_main m_ ON m_.dutyId = a.shiftMainId
+        WHERE a.dutyPeopleId = #{condition.dutyPeopleId}
+        AND a.dutyType = #{condition.dutyType}
+        ORDER BY a.approveDate desc   <!-- 根据申请时间倒叙-->
+
+    </select>
+    <update id="passApproveShiftInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+         UPDATE  `itsm_duty_approve` SET dutyState='1' ,dutyOpinion=#{dutyOpinion} WHERE itsm_duty_approve.id=#{id};    <!-- 值班申请通过-->
+    </update>
+    <update id="passApproveNoShiftInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+        UPDATE  `itsm_duty_approve` SET dutyState='2' ,dutyOpinion=#{dutyOpinion} WHERE itsm_duty_approve.id=#{id};    <!-- 值班申请通过-->
+    </update>
+    <update id="passApproveLevelInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+        UPDATE  `itsm_duty_approve` SET dutyState='1',shiftPeopleId=#{shiftPeopleId},shiftClassId=#{dutyClassId} WHERE itsm_duty_approve.id=#{id};    <!-- 请假申请通过-->
+    </update>
+    <update id="passApproveNoLevelInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+        UPDATE  `itsm_duty_approve` SET dutyState='2',noPassReason=#{noPassReason} WHERE itsm_duty_approve.id=#{id};   <!-- 请假申请驳回-->
+    </update>
+    <update id="changeDutyUserState" parameterType="java.util.Map">
+        UPDATE itsm_duty_main_user m
+        SET m.dutyState = #{dutyState}
+        WHERE
+            m.dutyId = #{dutyId}
+        AND typeUserId = #{typeUserId}
+        AND dutyTypeId = #{dutyClassId}
+    </update>
+    <update id="updateDutyUser" parameterType="java.util.Map">
+        UPDATE itsm_duty_main_user m
+        SET m.typeUserId = #{shiftUserId},
+         m.typeUserName = #{shiftUserName}
+        WHERE
+            m.dutyId = #{dutyId}
+        AND typeUserId = #{dutyUserId}
+        AND dutyTypeId = #{dutyTypeId}
+    </update>
+    <select id="findApproveById" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+        SELECT
+            a.id,
+            a.dutyMainId,
+            a.dutyClassId,
+            a.dutyPeopleId,
+            a.shiftMainId,
+            a.shiftClassId,
+            a.shiftPeopleId,
+            a.dutyType,
+            a.dutyState,
+            a.dutyOpinion,
+            a.reason,
+            a.approveDate
+        FROM
+            itsm_duty_approve a
+        WHERE a.id = #{id}
+    </select>
+    <select id="getShiftDutyInfoById" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+        SELECT
+           id,
+           approveDate,
+           dutyMainId,
+           dutyClassId,
+           dutyPeopleId,
+           dutyType,
+           shiftMainId,
+           shiftClassId,
+           shiftPeopleId,
+           shiftDate,
+           dutyState,
+           reason,
+           dutyOpinion,
+           m.dutyDate AS dutyDate,
+           m_.dutyDate AS shiftDate,
+           u.c_name AS dutyPeople,
+           u_.c_name AS shiftPeople,
+           t.`name` AS dutyClass,
+           t_.`name` AS shiftClass
+           FROM
+           itsm_duty_approve a
+           LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+           LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+           LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+           LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+           LEFT JOIN itsm_duty_main m ON m.dutyId = a.dutyMainId
+           LEFT JOIN itsm_duty_main m_ ON m_.dutyId = a.shiftMainId
+           WHERE a.id = #{id}
+    </select>
+    <select id="getLeaveInfoById" parameterType="java.lang.Long" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+                        SELECT 	a.id,
+                                a.dutyMainId,
+                                a.dutyClassId,
+                                a.dutyPeopleId,
+                                a.dutyType,
+                                a.approveDate,
+                                a.shiftMainId,
+                                a.shiftClassId,
+                                a.shiftPeopleId,
+                                a.dutyState,
+                                a.reason,
+                                a.dutyOpinion,
+                                a.noPassReason,
+                                a.dutyDate,
+                            a.shiftDate AS shiftDate,
+                            u.c_name AS dutyPeople,
+                            u_.c_name AS shiftPeople,
+                            t.`name` AS dutyClass,
+                            t_.`name` AS shiftClass
+                      FROM
+                    itsm_duty_approve a LEFT JOIN plat_user u ON a.dutyPeopleId = u.c_id
+                    LEFT JOIN plat_user u_ ON a.shiftPeopleId = u_.c_id
+                    LEFT JOIN itsm_duty_type t ON a.dutyClassId = t.typeId
+                    LEFT JOIN itsm_duty_type t_ ON a.shiftClassId = t_.typeId
+             WHERE id = #{id}
+    </select>
+</mapper>

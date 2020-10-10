@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="com.vlinksoft.ves.dutymanage.dao.DutyMyDao">
+    <insert id="insertShiftInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+        INSERT INTO `itsm_duty_approve` (
+            `id`,
+            `dutyType`,
+            `shiftMainId`,
+            `reason`,
+            `dutyMainId`,
+            `dutyClassId`,
+            `shiftPeopleId`,
+            `shiftClassId`,
+            `approveDate`,
+            `dutyPeopleId`,
+            `dutyDate`,
+            `shiftDate`
+        )
+        VALUES
+        (
+            #{id},
+            #{dutyType},
+            #{shiftMainId},
+            #{reason},
+            #{dutyMainId},
+            #{dutyClassId},
+            #{shiftPeopleId},
+            #{shiftClassId},
+            #{approveDate},
+            #{dutyPeopleId},
+            #{dutyDate},
+            #{shiftDate}
+        )
+    </insert>
+    <insert id="insertLevelInfo" parameterType="com.vlinksoft.ves.dutymanage.bo.DutyMy">
+        INSERT INTO `itsm_duty_approve` (
+            `id`,
+            `dutyType`,
+            `reason`,
+            `dutyMainId`,
+            `dutyClassId`,
+            `approveDate`,
+            `dutyPeopleId`,
+            `dutyDate`
+        )
+        VALUES
+        (
+            #{id},
+            #{dutyType},
+            #{reason},
+            #{dutyMainId},
+            #{dutyClassId},
+            #{approveDate},
+            #{dutyPeopleId},
+            #{dutyDate}
+        )
+    </insert>
+
+    <select id="checkFlogDuty" parameterType="java.util.Map" resultType="com.vlinksoft.ves.dutymanage.bo.DutyMainUserVo">
+      SELECT
+	    u.*
+      FROM
+	    itsm_duty_main m
+      LEFT JOIN itsm_duty_main_user u ON m.dutyId = u.dutyId
+      WHERE
+	    m.dutyDate = #{dutyDate}
+      AND u.typeUserId = #{userId}
+      AND u.dutyTypeId = #{dutyTypeId}
+    </select>
+
+
+
+    <update id="changeDutyState" parameterType="java.util.Map">
+        UPDATE itsm_duty_main_user SET dutyState=#{state} WHERE id=#{id}
+    </update>
+
+
+</mapper>
