@@ -1,0 +1,483 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_fault" name="故障流程" isExecutable="true">
+    <startEvent id="startEvent" activiti:initiator="creator"/>
+    <userTask id="sAccept_ServiceDesk" name="服务台受理/设备施工队|运维管理" activiti:candidateGroups="519001,519002">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>true</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="obstacleHandling" name="排障处理/${executeUser}" activiti:assignee="${executeUser}">
+      <extensionElements>
+        <activiti:isgrab>true</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="sAcceptTwo_ServiceDesk" name="专项排障受理/电力施工队|光缆施工队" activiti:candidateGroups="519003,519004">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="specialBarrierRemovalTreatment" name="专项排障处理/${executeUser}" activiti:assignee="${executeUser}">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="assetsDepartmentRecognition" name="资产部确认/资产部" activiti:candidateGroups="519005">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="equipmentConstructionTeam" name="设备施工队/设备施工队" activiti:candidateGroups="519001">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="operationMMConfirmationThree" name="运维管理确认/运维管理" activiti:candidateGroups="519002">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endEvent"/>
+    <userTask id="operationMMConfirmationTwo" name="运维管理确认/运维管理" activiti:candidateGroups="519002">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="to_obstacleHandling" name="接单" sourceRef="sAccept_ServiceDesk" targetRef="obstacleHandling"/>
+    <exclusiveGateway id="sid-E06B4B78-E3CE-4B13-A113-C1F5A94135E4"/>
+    <sequenceFlow id="sid-F4B82799-1066-49FB-87AC-CA4426D1C095" sourceRef="operationMMConfirmation" targetRef="sid-E06B4B78-E3CE-4B13-A113-C1F5A94135E4"/>
+    <exclusiveGateway id="sid-B0E7312A-C63E-4878-9ABC-CA8BF6656C37"/>
+    <sequenceFlow id="sid-EFA15A41-0A89-40E4-89E8-9FF3AE9E5CF8" sourceRef="operationMMConfirmationThree" targetRef="sid-B0E7312A-C63E-4878-9ABC-CA8BF6656C37"/>
+    <exclusiveGateway id="sid-D5718FBA-F4DE-404C-B90F-AB3CDC48B681"/>
+    <sequenceFlow id="sid-F794C995-7672-4FCC-820B-62F1E83F7753" sourceRef="assetsDepartmentRecognition" targetRef="sid-D5718FBA-F4DE-404C-B90F-AB3CDC48B681"/>
+    <exclusiveGateway id="sid-BD587EAE-899B-4790-9CAA-0481C47659FF"/>
+    <exclusiveGateway id="sid-E10FF7D8-6B23-499F-BA22-C32993536BA7"/>
+    <sequenceFlow id="to_equipmentConstructionTeam" name="转设备施工" sourceRef="sid-D5718FBA-F4DE-404C-B90F-AB3CDC48B681" targetRef="equipmentConstructionTeam">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_equipmentConstructionTeam'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="regression_specialBarrierRemovalTreatment" name="重新处理" sourceRef="sid-E10FF7D8-6B23-499F-BA22-C32993536BA7" targetRef="specialBarrierRemovalTreatment">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='regression_specialBarrierRemovalTreatment'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="regression_obstacleHandling" name="重新处理" sourceRef="sid-E06B4B78-E3CE-4B13-A113-C1F5A94135E4" targetRef="obstacleHandling">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_obstacleHandling'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="freezing_approval" name="冻结审批/资产部" activiti:candidateGroups="519005">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="freezing_treatment" name="冻结处理/${freezeUser}" activiti:assignee="${freezeUser}">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-E6E2D148-D461-4D42-A878-C09E091B7D29"/>
+    <userTask id="operationMMConfirmation" name="运维管理确认/运维管理" activiti:candidateGroups="519002">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="freezing_treatment_two" name="冻结处理/${freezeUser}" activiti:assignee="${freezeUser}">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="freezing_approval_two" name="冻结审批/资产部" activiti:candidateGroups="519005">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-D6E5A7D6-96F0-48A1-BFD9-B0DA115AA4D5"/>
+    <sequenceFlow id="sid-33D17E30-4E37-435F-B19B-BFABD432271E" sourceRef="freezing_approval_two" targetRef="sid-D6E5A7D6-96F0-48A1-BFD9-B0DA115AA4D5"/>
+    <sequenceFlow id="approval_approval_two" name="审批通过" sourceRef="sid-D6E5A7D6-96F0-48A1-BFD9-B0DA115AA4D5" targetRef="freezing_treatment_two">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_freezing_treatment_two'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="freezing_approval_three" name="冻结审批/资产部" activiti:candidateGroups="519005">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="freezing_treatment_three" name="冻结处理/${freezeUser}" activiti:assignee="${freezeUser}">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-0E1D7BFE-EA41-4F00-B05E-4C2A3742E444"/>
+    <sequenceFlow id="sid-B96A28B4-8620-47A2-ADCE-7EBCD7282870" sourceRef="freezing_approval_three" targetRef="sid-0E1D7BFE-EA41-4F00-B05E-4C2A3742E444"/>
+    <exclusiveGateway id="sid-67503078-4482-44BF-9FCC-DC7C4C002550"/>
+    <sequenceFlow id="to_sAcceptTwo" name="转专项排除" sourceRef="sid-E06B4B78-E3CE-4B13-A113-C1F5A94135E4" targetRef="sAcceptTwo_ServiceDesk">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_sAcceptTwo'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="sid-C0DBC70B-D476-454B-A2A5-B0CF3773681D"/>
+    <sequenceFlow id="sid-1037C26D-C847-46F4-A072-1558066F6D8B" sourceRef="equipmentConstructionTeam" targetRef="sid-C0DBC70B-D476-454B-A2A5-B0CF3773681D"/>
+    <sequenceFlow id="to_operationMMConfirmationThree" name="提交确认" sourceRef="sid-C0DBC70B-D476-454B-A2A5-B0CF3773681D" targetRef="operationMMConfirmationThree">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_operationMMConfirmationThree'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="thaw_id" name="解冻" sourceRef="freezing_treatment" targetRef="obstacleHandling">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="to_operationMMConfirmationTwo" name="提交确认" sourceRef="sid-BD587EAE-899B-4790-9CAA-0481C47659FF" targetRef="operationMMConfirmationTwo">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_operationMMConfirmationTwo'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="to_operationMMConfirmation" name="提交确认" sourceRef="sid-67503078-4482-44BF-9FCC-DC7C4C002550" targetRef="operationMMConfirmation">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_operationMMConfirmation'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-70F1389F-1337-4798-9401-3A65648C9794" sourceRef="freezing_approval" targetRef="sid-E6E2D148-D461-4D42-A878-C09E091B7D29"/>
+    <sequenceFlow id="sid-011AAF85-9AB2-4A54-ADDF-2F59C495E955" sourceRef="obstacleHandling" targetRef="sid-67503078-4482-44BF-9FCC-DC7C4C002550"/>
+    <sequenceFlow id="approval_approval_no" name="审批不通过" sourceRef="sid-E6E2D148-D461-4D42-A878-C09E091B7D29" targetRef="obstacleHandling">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_obstacleHandling'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-304591EC-80FA-4026-8448-02C8A426C40F" sourceRef="specialBarrierRemovalTreatment" targetRef="sid-BD587EAE-899B-4790-9CAA-0481C47659FF"/>
+    <sequenceFlow id="to_end" name="确认关闭" sourceRef="sid-B0E7312A-C63E-4878-9ABC-CA8BF6656C37" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_end'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="regression_equipmentConstructionTeam" name="重新处理" sourceRef="sid-B0E7312A-C63E-4878-9ABC-CA8BF6656C37" targetRef="equipmentConstructionTeam">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='regression_equipmentConstructionTeam'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="sid-8E4BF366-6442-497B-A484-A34140640F25"/>
+    <sequenceFlow id="to_endThree" name="确认关闭" sourceRef="sid-E06B4B78-E3CE-4B13-A113-C1F5A94135E4" targetRef="sid-8E4BF366-6442-497B-A484-A34140640F25">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_endThree'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="sid-C24CF4CF-9471-44C0-A7B3-91D79354C29E"/>
+    <sequenceFlow id="to_endTwo" name="确认关闭" sourceRef="sid-E10FF7D8-6B23-499F-BA22-C32993536BA7" targetRef="sid-C24CF4CF-9471-44C0-A7B3-91D79354C29E">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_endTwo'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="approval_approval" name="审批通过" sourceRef="sid-E6E2D148-D461-4D42-A878-C09E091B7D29" targetRef="freezing_treatment">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_freezing_treatment'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-836833C2-478A-4543-A093-C572E102A50B" sourceRef="operationMMConfirmationTwo" targetRef="sid-E10FF7D8-6B23-499F-BA22-C32993536BA7"/>
+    <sequenceFlow id="thaw_id_two" name="解冻" sourceRef="freezing_treatment_two" targetRef="specialBarrierRemovalTreatment">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="Regression_specialBarrierRemovalTreatment" name="协调完成" sourceRef="sid-D5718FBA-F4DE-404C-B90F-AB3CDC48B681" targetRef="specialBarrierRemovalTreatment">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='Regression_specialBarrierRemovalTreatment'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="to_specialBarrierRemovalTreatment" name="专项排障接单" sourceRef="sAcceptTwo_ServiceDesk" targetRef="specialBarrierRemovalTreatment"/>
+    <sequenceFlow id="to_assetsDepartmentRecognition" name="协调申请" sourceRef="sid-BD587EAE-899B-4790-9CAA-0481C47659FF" targetRef="assetsDepartmentRecognition">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_assetsDepartmentRecognition'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="to_sAccept" name="提交服务台" sourceRef="startEvent" targetRef="sAccept_ServiceDesk"/>
+    <sequenceFlow id="approval_approval_no_two" name="审批不通过" sourceRef="sid-D6E5A7D6-96F0-48A1-BFD9-B0DA115AA4D5" targetRef="specialBarrierRemovalTreatment">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_specialBarrierRemovalTreatment'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="approval_approval_three" name="审批通过" sourceRef="sid-0E1D7BFE-EA41-4F00-B05E-4C2A3742E444" targetRef="freezing_treatment_three">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_freezing_treatment_three'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="approval_approval_no_three" name="审批不通过" sourceRef="sid-0E1D7BFE-EA41-4F00-B05E-4C2A3742E444" targetRef="equipmentConstructionTeam">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_equipmentConstructionTeam'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="thaw_id_three" name="解冻" sourceRef="freezing_treatment_three" targetRef="equipmentConstructionTeam">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="application_for_freezing_three" name="申请冻结" sourceRef="sid-C0DBC70B-D476-454B-A2A5-B0CF3773681D" targetRef="freezing_approval_three">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.fault.project.path.FreezePathListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_freezing_approval_three'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="application_for_freezing_two" name="申请冻结" sourceRef="sid-BD587EAE-899B-4790-9CAA-0481C47659FF" targetRef="freezing_approval_two">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_freezing_approval_two'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="application_for_freezing" name="申请冻结" sourceRef="sid-67503078-4482-44BF-9FCC-DC7C4C002550" targetRef="freezing_approval">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.fault.project.path.FreezePathListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='to_freezing_approval'}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_fault">
+    <bpmndi:BPMNPlane bpmnElement="itsm_fault" id="BPMNPlane_itsm_fault">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="450.0" y="370.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sAccept_ServiceDesk" id="BPMNShape_sAccept_ServiceDesk">
+        <omgdc:Bounds height="80.0" width="100.0" x="555.0" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="obstacleHandling" id="BPMNShape_obstacleHandling">
+        <omgdc:Bounds height="80.0" width="100.0" x="735.0" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sAcceptTwo_ServiceDesk" id="BPMNShape_sAcceptTwo_ServiceDesk">
+        <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="specialBarrierRemovalTreatment" id="BPMNShape_specialBarrierRemovalTreatment">
+        <omgdc:Bounds height="80.0" width="100.0" x="1470.0" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="assetsDepartmentRecognition" id="BPMNShape_assetsDepartmentRecognition">
+        <omgdc:Bounds height="80.0" width="100.0" x="1722.7272505602568" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="equipmentConstructionTeam" id="BPMNShape_equipmentConstructionTeam">
+        <omgdc:Bounds height="80.0" width="100.0" x="1955.0" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="operationMMConfirmationThree" id="BPMNShape_operationMMConfirmationThree">
+        <omgdc:Bounds height="80.0" width="100.0" x="2199.9999739907007" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="2472.7272343044447" y="371.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="operationMMConfirmationTwo" id="BPMNShape_operationMMConfirmationTwo">
+        <omgdc:Bounds height="80.0" width="100.0" x="1590.0" y="480.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-E06B4B78-E3CE-4B13-A113-C1F5A94135E4" id="BPMNShape_sid-E06B4B78-E3CE-4B13-A113-C1F5A94135E4">
+        <omgdc:Bounds height="40.0" width="40.0" x="1155.0" y="365.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-B0E7312A-C63E-4878-9ABC-CA8BF6656C37" id="BPMNShape_sid-B0E7312A-C63E-4878-9ABC-CA8BF6656C37">
+        <omgdc:Bounds height="40.0" width="40.0" x="2363.636334080342" y="365.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-D5718FBA-F4DE-404C-B90F-AB3CDC48B681" id="BPMNShape_sid-D5718FBA-F4DE-404C-B90F-AB3CDC48B681">
+        <omgdc:Bounds height="40.0" width="40.0" x="1850.0" y="365.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-BD587EAE-899B-4790-9CAA-0481C47659FF" id="BPMNShape_sid-BD587EAE-899B-4790-9CAA-0481C47659FF">
+        <omgdc:Bounds height="40.0" width="40.0" x="1620.0" y="365.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-E10FF7D8-6B23-499F-BA22-C32993536BA7" id="BPMNShape_sid-E10FF7D8-6B23-499F-BA22-C32993536BA7">
+        <omgdc:Bounds height="40.0" width="40.0" x="1500.0" y="500.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="freezing_approval" id="BPMNShape_freezing_approval">
+        <omgdc:Bounds height="80.0" width="100.0" x="870.0" y="480.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="freezing_treatment" id="BPMNShape_freezing_treatment">
+        <omgdc:Bounds height="80.0" width="100.0" x="585.0" y="480.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-E6E2D148-D461-4D42-A878-C09E091B7D29" id="BPMNShape_sid-E6E2D148-D461-4D42-A878-C09E091B7D29">
+        <omgdc:Bounds height="40.0" width="40.0" x="765.0" y="500.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="operationMMConfirmation" id="BPMNShape_operationMMConfirmation">
+        <omgdc:Bounds height="80.0" width="100.0" x="1005.0" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="freezing_treatment_two" id="BPMNShape_freezing_treatment_two">
+        <omgdc:Bounds height="80.0" width="100.0" x="1275.0" y="135.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="freezing_approval_two" id="BPMNShape_freezing_approval_two">
+        <omgdc:Bounds height="80.0" width="100.0" x="1590.0" y="135.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-D6E5A7D6-96F0-48A1-BFD9-B0DA115AA4D5" id="BPMNShape_sid-D6E5A7D6-96F0-48A1-BFD9-B0DA115AA4D5">
+        <omgdc:Bounds height="40.0" width="40.0" x="1470.0" y="155.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="freezing_approval_three" id="BPMNShape_freezing_approval_three">
+        <omgdc:Bounds height="80.0" width="100.0" x="2075.0" y="218.18181345285473"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="freezing_treatment_three" id="BPMNShape_freezing_treatment_three">
+        <omgdc:Bounds height="80.0" width="100.0" x="2075.0" y="0.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-0E1D7BFE-EA41-4F00-B05E-4C2A3742E444" id="BPMNShape_sid-0E1D7BFE-EA41-4F00-B05E-4C2A3742E444">
+        <omgdc:Bounds height="40.0" width="40.0" x="2105.0" y="149.99999674883762"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-67503078-4482-44BF-9FCC-DC7C4C002550" id="BPMNShape_sid-67503078-4482-44BF-9FCC-DC7C4C002550">
+        <omgdc:Bounds height="40.0" width="40.0" x="900.0" y="365.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-C0DBC70B-D476-454B-A2A5-B0CF3773681D" id="BPMNShape_sid-C0DBC70B-D476-454B-A2A5-B0CF3773681D">
+        <omgdc:Bounds height="40.0" width="40.0" x="2105.0" y="365.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-8E4BF366-6442-497B-A484-A34140640F25" id="BPMNShape_sid-8E4BF366-6442-497B-A484-A34140640F25">
+        <omgdc:Bounds height="28.0" width="28.0" x="1161.0" y="525.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-C24CF4CF-9471-44C0-A7B3-91D79354C29E" id="BPMNShape_sid-C24CF4CF-9471-44C0-A7B3-91D79354C29E">
+        <omgdc:Bounds height="28.0" width="28.0" x="1506.0" y="600.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="to_operationMMConfirmationTwo" id="BPMNEdge_to_operationMMConfirmationTwo">
+        <omgdi:waypoint x="1640.0" y="405.0"/>
+        <omgdi:waypoint x="1640.0" y="480.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="thaw_id_two" id="BPMNEdge_thaw_id_two">
+        <omgdi:waypoint x="1325.0" y="215.0"/>
+        <omgdi:waypoint x="1325.0" y="302.0"/>
+        <omgdi:waypoint x="1470.0" y="363.71794871794873"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B96A28B4-8620-47A2-ADCE-7EBCD7282870" id="BPMNEdge_sid-B96A28B4-8620-47A2-ADCE-7EBCD7282870">
+        <omgdi:waypoint x="2125.0" y="218.18181345285473"/>
+        <omgdi:waypoint x="2125.0" y="189.99999674883762"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="regression_equipmentConstructionTeam" id="BPMNEdge_regression_equipmentConstructionTeam">
+        <omgdi:waypoint x="2383.636334080342" y="405.0"/>
+        <omgdi:waypoint x="2383.636334080342" y="485.0"/>
+        <omgdi:waypoint x="2005.0" y="485.0"/>
+        <omgdi:waypoint x="2005.0" y="425.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="thaw_id" id="BPMNEdge_thaw_id">
+        <omgdi:waypoint x="680.7272727272727" y="480.0"/>
+        <omgdi:waypoint x="743.6022727272727" y="425.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_operationMMConfirmation" id="BPMNEdge_to_operationMMConfirmation">
+        <omgdi:waypoint x="939.570895522388" y="385.42910447761193"/>
+        <omgdi:waypoint x="1005.0" y="385.18587360594796"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="application_for_freezing_two" id="BPMNEdge_application_for_freezing_two">
+        <omgdi:waypoint x="1640.452380952381" y="365.45238095238096"/>
+        <omgdi:waypoint x="1640.0950118764845" y="215.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_sAcceptTwo" id="BPMNEdge_to_sAcceptTwo">
+        <omgdi:waypoint x="1195.0" y="385.0"/>
+        <omgdi:waypoint x="1275.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-70F1389F-1337-4798-9401-3A65648C9794" id="BPMNEdge_sid-70F1389F-1337-4798-9401-3A65648C9794">
+        <omgdi:waypoint x="870.0" y="520.0"/>
+        <omgdi:waypoint x="805.0" y="520.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-304591EC-80FA-4026-8448-02C8A426C40F" id="BPMNEdge_sid-304591EC-80FA-4026-8448-02C8A426C40F">
+        <omgdi:waypoint x="1570.0" y="385.0"/>
+        <omgdi:waypoint x="1620.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_endThree" id="BPMNEdge_to_endThree">
+        <omgdi:waypoint x="1175.0625398011268" y="404.93746019887317"/>
+        <omgdi:waypoint x="1175.4092098525682" y="515.4546065315895"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F794C995-7672-4FCC-820B-62F1E83F7753" id="BPMNEdge_sid-F794C995-7672-4FCC-820B-62F1E83F7753">
+        <omgdi:waypoint x="1822.7272505602568" y="385.0"/>
+        <omgdi:waypoint x="1850.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-1037C26D-C847-46F4-A072-1558066F6D8B" id="BPMNEdge_sid-1037C26D-C847-46F4-A072-1558066F6D8B">
+        <omgdi:waypoint x="2055.0" y="385.0"/>
+        <omgdi:waypoint x="2105.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-EFA15A41-0A89-40E4-89E8-9FF3AE9E5CF8" id="BPMNEdge_sid-EFA15A41-0A89-40E4-89E8-9FF3AE9E5CF8">
+        <omgdi:waypoint x="2299.9999739907007" y="385.0"/>
+        <omgdi:waypoint x="2363.636334080342" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="regression_obstacleHandling" id="BPMNEdge_regression_obstacleHandling">
+        <omgdi:waypoint x="1175.0" y="365.0"/>
+        <omgdi:waypoint x="1175.0" y="270.0"/>
+        <omgdi:waypoint x="785.0" y="270.0"/>
+        <omgdi:waypoint x="785.0" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="regression_specialBarrierRemovalTreatment" id="BPMNEdge_regression_specialBarrierRemovalTreatment">
+        <omgdi:waypoint x="1520.0" y="500.0"/>
+        <omgdi:waypoint x="1520.0" y="425.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="application_for_freezing_three" id="BPMNEdge_application_for_freezing_three">
+        <omgdi:waypoint x="2125.421146956345" y="365.4211469563454"/>
+        <omgdi:waypoint x="2125.157086748896" y="298.1818134528547"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approval_approval_two" id="BPMNEdge_approval_approval_two">
+        <omgdi:waypoint x="1470.5" y="175.5"/>
+        <omgdi:waypoint x="1375.0" y="175.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-011AAF85-9AB2-4A54-ADDF-2F59C495E955" id="BPMNEdge_sid-011AAF85-9AB2-4A54-ADDF-2F59C495E955">
+        <omgdi:waypoint x="835.0" y="385.1845018450185"/>
+        <omgdi:waypoint x="900.4259259259259" y="385.4259259259259"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="thaw_id_three" id="BPMNEdge_thaw_id_three">
+        <omgdi:waypoint x="2075.0" y="40.0"/>
+        <omgdi:waypoint x="1980.0" y="40.0"/>
+        <omgdi:waypoint x="1980.0" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_endTwo" id="BPMNEdge_to_endTwo">
+        <omgdi:waypoint x="1520.0" y="540.0"/>
+        <omgdi:waypoint x="1520.0" y="600.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_equipmentConstructionTeam" id="BPMNEdge_to_equipmentConstructionTeam">
+        <omgdi:waypoint x="1890.0" y="385.0"/>
+        <omgdi:waypoint x="1955.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approval_approval_no_three" id="BPMNEdge_approval_approval_no_three">
+        <omgdi:waypoint x="2105.5" y="170.49999674883762"/>
+        <omgdi:waypoint x="2030.0" y="170.49999674883762"/>
+        <omgdi:waypoint x="2030.0" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approval_approval_no_two" id="BPMNEdge_approval_approval_no_two">
+        <omgdi:waypoint x="1490.9885714285715" y="194.01142857142858"/>
+        <omgdi:waypoint x="1494.9736070381232" y="345.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-836833C2-478A-4543-A093-C572E102A50B" id="BPMNEdge_sid-836833C2-478A-4543-A093-C572E102A50B">
+        <omgdi:waypoint x="1590.0" y="520.0"/>
+        <omgdi:waypoint x="1540.0" y="520.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_obstacleHandling" id="BPMNEdge_to_obstacleHandling">
+        <omgdi:waypoint x="655.0" y="385.0"/>
+        <omgdi:waypoint x="735.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-33D17E30-4E37-435F-B19B-BFABD432271E" id="BPMNEdge_sid-33D17E30-4E37-435F-B19B-BFABD432271E">
+        <omgdi:waypoint x="1590.0" y="175.0"/>
+        <omgdi:waypoint x="1510.0" y="175.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_sAccept" id="BPMNEdge_to_sAccept">
+        <omgdi:waypoint x="480.0" y="385.0"/>
+        <omgdi:waypoint x="555.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_end" id="BPMNEdge_to_end">
+        <omgdi:waypoint x="2403.636334080342" y="385.0"/>
+        <omgdi:waypoint x="2472.7272343044447" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_assetsDepartmentRecognition" id="BPMNEdge_to_assetsDepartmentRecognition">
+        <omgdi:waypoint x="1660.0" y="385.0"/>
+        <omgdi:waypoint x="1722.7272505602568" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approval_approval_no" id="BPMNEdge_approval_approval_no">
+        <omgdi:waypoint x="785.3958333333334" y="500.3958333333333"/>
+        <omgdi:waypoint x="785.0051813471503" y="425.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approval_approval" id="BPMNEdge_approval_approval">
+        <omgdi:waypoint x="765.40099009901" y="520.40099009901"/>
+        <omgdi:waypoint x="685.0" y="520.0049261083744"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approval_approval_three" id="BPMNEdge_approval_approval_three">
+        <omgdi:waypoint x="2125.423076921153" y="150.42307366999077"/>
+        <omgdi:waypoint x="2125.153256708799" y="80.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F4B82799-1066-49FB-87AC-CA4426D1C095" id="BPMNEdge_sid-F4B82799-1066-49FB-87AC-CA4426D1C095">
+        <omgdi:waypoint x="1105.0" y="385.0"/>
+        <omgdi:waypoint x="1155.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_operationMMConfirmationThree" id="BPMNEdge_to_operationMMConfirmationThree">
+        <omgdi:waypoint x="2144.5766129192957" y="385.42338708070446"/>
+        <omgdi:waypoint x="2199.9999739907007" y="385.2008032548012"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="application_for_freezing" id="BPMNEdge_application_for_freezing">
+        <omgdi:waypoint x="920.4" y="404.6"/>
+        <omgdi:waypoint x="920.0052356020942" y="480.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Regression_specialBarrierRemovalTreatment" id="BPMNEdge_Regression_specialBarrierRemovalTreatment">
+        <omgdi:waypoint x="1870.0" y="405.0"/>
+        <omgdi:waypoint x="1870.0" y="658.0"/>
+        <omgdi:waypoint x="1433.5" y="658.0"/>
+        <omgdi:waypoint x="1433.5" y="436.0"/>
+        <omgdi:waypoint x="1470.0" y="414.4797687861272"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="to_specialBarrierRemovalTreatment" id="BPMNEdge_to_specialBarrierRemovalTreatment">
+        <omgdi:waypoint x="1375.0" y="385.0"/>
+        <omgdi:waypoint x="1470.0" y="385.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

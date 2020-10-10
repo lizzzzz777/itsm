@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_asset_repair" name="资产台账-维修" isExecutable="true">
+    <startEvent id="startEvent" name="startEvent"/>
+    <serviceTask id="sid-180E7C2F-8C93-4A8E-85AE-5551C6C114B6" name="改变资产状态为维修" activiti:expression="${AssetServiceTask.repairAsset(execution)}"/>
+    <serviceTask id="sid-41FE7D73-B456-4457-8D32-5A734B5923F6" name="改变资产状态为库存" activiti:expression="${AssetServiceTask.confirRepairAsset(execution)}"/>
+    <endEvent id="endEvent" name="endEvent"/>
+    <sequenceFlow id="sid-6B9C21D5-5D9F-4DDB-9A75-7A0573070643" sourceRef="sid-41FE7D73-B456-4457-8D32-5A734B5923F6" targetRef="endEvent"/>
+    <sequenceFlow id="sid-F90577C0-17DA-4EC7-841A-D6F009A73523" sourceRef="sid-180E7C2F-8C93-4A8E-85AE-5551C6C114B6" targetRef="endEvent"/>
+    <sequenceFlow id="sid-69667B19-032E-4C49-AF80-39D88F3310BE" name="维修" sourceRef="startEvent" targetRef="sid-180E7C2F-8C93-4A8E-85AE-5551C6C114B6">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "repair"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-15B24EFC-F777-40F2-8077-E0399B87239A" name="确认维修" sourceRef="startEvent" targetRef="sid-41FE7D73-B456-4457-8D32-5A734B5923F6">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "storage"}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_asset_repair">
+    <bpmndi:BPMNPlane bpmnElement="itsm_asset_repair" id="BPMNPlane_itsm_asset_repair">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="105.0" y="239.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-180E7C2F-8C93-4A8E-85AE-5551C6C114B6" id="BPMNShape_sid-180E7C2F-8C93-4A8E-85AE-5551C6C114B6">
+        <omgdc:Bounds height="80.0" width="100.0" x="495.0" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-41FE7D73-B456-4457-8D32-5A734B5923F6" id="BPMNShape_sid-41FE7D73-B456-4457-8D32-5A734B5923F6">
+        <omgdc:Bounds height="80.0" width="100.0" x="495.0" y="330.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="870.0" y="240.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-15B24EFC-F777-40F2-8077-E0399B87239A" id="BPMNEdge_sid-15B24EFC-F777-40F2-8077-E0399B87239A">
+        <omgdi:waypoint x="134.4706712939735" y="257.9496420472963"/>
+        <omgdi:waypoint x="495.0" y="356.3529411764706"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-69667B19-032E-4C49-AF80-39D88F3310BE" id="BPMNEdge_sid-69667B19-032E-4C49-AF80-39D88F3310BE">
+        <omgdi:waypoint x="134.39962046887362" y="249.79869896908158"/>
+        <omgdi:waypoint x="495.0" y="144.58823529411765"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-6B9C21D5-5D9F-4DDB-9A75-7A0573070643" id="BPMNEdge_sid-6B9C21D5-5D9F-4DDB-9A75-7A0573070643">
+        <omgdi:waypoint x="595.0" y="352.89085545722713"/>
+        <omgdi:waypoint x="870.7540191576826" y="258.53254801684017"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F90577C0-17DA-4EC7-841A-D6F009A73523" id="BPMNEdge_sid-F90577C0-17DA-4EC7-841A-D6F009A73523">
+        <omgdi:waypoint x="595.0" y="148.2890855457227"/>
+        <omgdi:waypoint x="870.851974865399" y="249.1906928711194"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

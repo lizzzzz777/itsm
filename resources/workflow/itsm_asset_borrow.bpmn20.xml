@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_asset_borrowReturn" name="资产台账-借用归还" isExecutable="true">
+    <startEvent id="startEvent" name="startEvent"/>
+    <endEvent id="endEvent" name="endEvent"/>
+    <serviceTask id="sid-277C425A-7BA4-4088-AC21-601113D2FCA3" name="改变资产状态为外借" activiti:expression="${AssetServiceTask.borrowAsset(execution)}"/>
+    <serviceTask id="sid-530D1FF9-A3BC-4674-AC5A-0A29F710141E" name="改变资产状态为库存" activiti:expression="${AssetServiceTask.confirmReturn(execution)}"/>
+    <sequenceFlow id="sid-8970E258-E899-4CE6-9626-2CBAD98486AD" sourceRef="sid-277C425A-7BA4-4088-AC21-601113D2FCA3" targetRef="endEvent"/>
+    <sequenceFlow id="sid-C5552944-0FE8-4DB7-96B5-17897051E746" sourceRef="sid-530D1FF9-A3BC-4674-AC5A-0A29F710141E" targetRef="endEvent"/>
+    <sequenceFlow id="sid-9D89C7CB-E7C0-440A-A651-23F397888E80" name="借用" sourceRef="startEvent" targetRef="sid-277C425A-7BA4-4088-AC21-601113D2FCA3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "borrow"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-0F6DC2AB-8304-46BF-BC03-49A748EF6DC3" name="归还" sourceRef="startEvent" targetRef="sid-530D1FF9-A3BC-4674-AC5A-0A29F710141E">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "return"}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_asset_borrowReturn">
+    <bpmndi:BPMNPlane bpmnElement="itsm_asset_borrowReturn" id="BPMNPlane_itsm_asset_borrowReturn">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="135.0" y="240.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="763.5" y="241.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-277C425A-7BA4-4088-AC21-601113D2FCA3" id="BPMNShape_sid-277C425A-7BA4-4088-AC21-601113D2FCA3">
+        <omgdc:Bounds height="80.0" width="100.0" x="420.0" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-530D1FF9-A3BC-4674-AC5A-0A29F710141E" id="BPMNShape_sid-530D1FF9-A3BC-4674-AC5A-0A29F710141E">
+        <omgdc:Bounds height="80.0" width="100.0" x="420.0" y="315.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-C5552944-0FE8-4DB7-96B5-17897051E746" id="BPMNEdge_sid-C5552944-0FE8-4DB7-96B5-17897051E746">
+        <omgdi:waypoint x="520.0" y="338.739837398374"/>
+        <omgdi:waypoint x="764.1863187048066" y="259.32965245372145"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-0F6DC2AB-8304-46BF-BC03-49A748EF6DC3" id="BPMNEdge_sid-0F6DC2AB-8304-46BF-BC03-49A748EF6DC3">
+        <omgdi:waypoint x="164.31719967052544" y="259.4741248970392"/>
+        <omgdi:waypoint x="420.0" y="339.375"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-8970E258-E899-4CE6-9626-2CBAD98486AD" id="BPMNEdge_sid-8970E258-E899-4CE6-9626-2CBAD98486AD">
+        <omgdi:waypoint x="520.0" y="150.3252032520325"/>
+        <omgdi:waypoint x="764.5306172209149" y="249.7278931792337"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-9D89C7CB-E7C0-440A-A651-23F397888E80" id="BPMNEdge_sid-9D89C7CB-E7C0-440A-A651-23F397888E80">
+        <omgdi:waypoint x="163.97186024219428" y="249.54224209289285"/>
+        <omgdi:waypoint x="420.0" y="149.53125"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

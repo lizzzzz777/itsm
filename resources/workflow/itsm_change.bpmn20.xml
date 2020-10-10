@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_change" name="变更流程" isExecutable="true">
+    <startEvent id="sid-F4427FB2-F1C9-4B64-8E09-C78397E26B80" activiti:initiator="creator"/>
+    <userTask id="audit" name="/变更审核员" activiti:candidateGroups="748002">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-CAD121DA-A4CF-4F74-9DF1-77CAC47CB684"/>
+    <userTask id="execute" name="/变更实施员" activiti:candidateGroups="748003">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <userTask id="modify" name="修改工单" activiti:assignee="${creator}">
+      <extensionElements>
+        <activiti:isgrab>false</activiti:isgrab>
+        <activiti:isservicedesk>false</activiti:isservicedesk>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-C64120A2-77F0-403D-84B5-F05CD9C53FF5"/>
+    <endEvent id="sid-C11E9D5C-5F1E-46C5-99D9-3C86289A23FA"/>
+    <sequenceFlow id="sid-A2BE819D-30E7-4CB4-BC41-FA70C52AD01A" sourceRef="execute" targetRef="sid-C64120A2-77F0-403D-84B5-F05CD9C53FF5"/>
+    <serviceTask id="sid-4C6CD0D4-829D-44D2-A04F-EB03A0D6F6C1" name="变更资产" activiti:expression="${changeAssetTask.changeAsset(execution)}"/>
+    <sequenceFlow id="toWaitAudit" sourceRef="sid-F4427FB2-F1C9-4B64-8E09-C78397E26B80" targetRef="audit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == 'toWaitAudit'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="modifyToAudit" name="重新申请" sourceRef="modify" targetRef="audit">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == 'toWaitAudit'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-B1863076-EAF1-4865-B235-17529B7D97D0" sourceRef="audit" targetRef="sid-CAD121DA-A4CF-4F74-9DF1-77CAC47CB684"/>
+    <sequenceFlow id="auditToExecute" name="通过" sourceRef="sid-CAD121DA-A4CF-4F74-9DF1-77CAC47CB684" targetRef="execute">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == 'toWaitExecute'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="auditToModify" name="不通过" sourceRef="sid-CAD121DA-A4CF-4F74-9DF1-77CAC47CB684" targetRef="modify">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == 'toWaitModify'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-FB9FE6B5-24BC-4CE5-8533-21758F8ED7B7" sourceRef="sid-4C6CD0D4-829D-44D2-A04F-EB03A0D6F6C1" targetRef="sid-C11E9D5C-5F1E-46C5-99D9-3C86289A23FA"/>
+    <sequenceFlow id="executeToModify" name="实施不成功" sourceRef="sid-C64120A2-77F0-403D-84B5-F05CD9C53FF5" targetRef="modify">
+      <extensionElements>
+        <activiti:executionListener event="start" class="com.vlinksoft.ves.workflow.um.workflow.flowlistener.GobackFlowListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == 'toWaitModify'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-662B6A2D-5116-41D9-9799-ACDD78C45729" name="实施成功" sourceRef="sid-C64120A2-77F0-403D-84B5-F05CD9C53FF5" targetRef="sid-4C6CD0D4-829D-44D2-A04F-EB03A0D6F6C1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == 'toEnd'}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_change">
+    <bpmndi:BPMNPlane bpmnElement="itsm_change" id="BPMNPlane_itsm_change">
+      <bpmndi:BPMNShape bpmnElement="sid-F4427FB2-F1C9-4B64-8E09-C78397E26B80" id="BPMNShape_sid-F4427FB2-F1C9-4B64-8E09-C78397E26B80">
+        <omgdc:Bounds height="30.0" width="30.0" x="90.0" y="250.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="audit" id="BPMNShape_audit">
+        <omgdc:Bounds height="80.0" width="100.0" x="240.0" y="225.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-CAD121DA-A4CF-4F74-9DF1-77CAC47CB684" id="BPMNShape_sid-CAD121DA-A4CF-4F74-9DF1-77CAC47CB684">
+        <omgdc:Bounds height="40.0" width="40.0" x="435.0" y="245.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="execute" id="BPMNShape_execute">
+        <omgdc:Bounds height="80.0" width="100.0" x="540.0" y="225.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="modify" id="BPMNShape_modify">
+        <omgdc:Bounds height="80.0" width="100.0" x="405.0" y="390.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-C64120A2-77F0-403D-84B5-F05CD9C53FF5" id="BPMNShape_sid-C64120A2-77F0-403D-84B5-F05CD9C53FF5">
+        <omgdc:Bounds height="40.0" width="40.0" x="720.0" y="245.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-C11E9D5C-5F1E-46C5-99D9-3C86289A23FA" id="BPMNShape_sid-C11E9D5C-5F1E-46C5-99D9-3C86289A23FA">
+        <omgdc:Bounds height="28.0" width="28.0" x="1035.0" y="251.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-4C6CD0D4-829D-44D2-A04F-EB03A0D6F6C1" id="BPMNShape_sid-4C6CD0D4-829D-44D2-A04F-EB03A0D6F6C1">
+        <omgdc:Bounds height="80.0" width="100.0" x="855.0" y="225.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-B1863076-EAF1-4865-B235-17529B7D97D0" id="BPMNEdge_sid-B1863076-EAF1-4865-B235-17529B7D97D0">
+        <omgdi:waypoint x="340.0" y="265.0"/>
+        <omgdi:waypoint x="435.0" y="265.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="auditToExecute" id="BPMNEdge_auditToExecute">
+        <omgdi:waypoint x="475.0" y="265.0"/>
+        <omgdi:waypoint x="540.0" y="265.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="auditToModify" id="BPMNEdge_auditToModify">
+        <omgdi:waypoint x="455.0" y="285.0"/>
+        <omgdi:waypoint x="455.0" y="390.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="executeToModify" id="BPMNEdge_executeToModify">
+        <omgdi:waypoint x="740.0" y="285.0"/>
+        <omgdi:waypoint x="740.0" y="430.0"/>
+        <omgdi:waypoint x="505.0" y="430.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-A2BE819D-30E7-4CB4-BC41-FA70C52AD01A" id="BPMNEdge_sid-A2BE819D-30E7-4CB4-BC41-FA70C52AD01A">
+        <omgdi:waypoint x="640.0" y="265.0"/>
+        <omgdi:waypoint x="720.0" y="265.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-FB9FE6B5-24BC-4CE5-8533-21758F8ED7B7" id="BPMNEdge_sid-FB9FE6B5-24BC-4CE5-8533-21758F8ED7B7">
+        <omgdi:waypoint x="955.0" y="265.0"/>
+        <omgdi:waypoint x="1035.0" y="265.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="toWaitAudit" id="BPMNEdge_toWaitAudit">
+        <omgdi:waypoint x="120.0" y="265.0"/>
+        <omgdi:waypoint x="240.0" y="265.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-662B6A2D-5116-41D9-9799-ACDD78C45729" id="BPMNEdge_sid-662B6A2D-5116-41D9-9799-ACDD78C45729">
+        <omgdi:waypoint x="760.0" y="265.0"/>
+        <omgdi:waypoint x="855.0" y="265.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="modifyToAudit" id="BPMNEdge_modifyToAudit">
+        <omgdi:waypoint x="405.0" y="430.0"/>
+        <omgdi:waypoint x="290.0" y="430.0"/>
+        <omgdi:waypoint x="290.0" y="305.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

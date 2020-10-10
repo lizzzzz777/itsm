@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+    <process id="itsm_event" name="事件流程" isExecutable="true">
+        <startEvent id="startEvent"/>
+        <userTask id="firstLine" name="一线工程师处理" activiti:candidateGroups="424501"/>
+        <exclusiveGateway id="sid-DB38974D-D87A-4DCC-9F8C-72E97198299F"/>
+        <userTask id="secondLine" name="二线工程师处理" activiti:candidateGroups="424502"/>
+        <exclusiveGateway id="sid-7D3A7811-1AD5-4D01-8DF8-6B3352B446F8"/>
+        <exclusiveGateway id="sid-2D256DA4-11CF-4E63-B1B5-DBF4A76F0DB4"/>
+        <userTask id="sAccept" name="服务台受理" activiti:candidateGroups="424500,424501">
+            <multiInstanceLoopCharacteristics isSequential="true">
+                <loopCardinality>1</loopCardinality>
+            </multiInstanceLoopCharacteristics>
+        </userTask>
+        <exclusiveGateway id="sid-626324BD-4192-48DC-A07A-23E4AECEE014"/>
+        <endEvent id="endEvent"/>
+        <sequenceFlow id="seNext" sourceRef="secondLine" targetRef="sid-626324BD-4192-48DC-A07A-23E4AECEE014"/>
+        <sequenceFlow id="seToEnd" name="解决" sourceRef="sid-626324BD-4192-48DC-A07A-23E4AECEE014" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='seToEnd'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="fToEnd" name="解决" sourceRef="sid-DB38974D-D87A-4DCC-9F8C-72E97198299F" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='fToEnd'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="fNext" sourceRef="firstLine" targetRef="sid-DB38974D-D87A-4DCC-9F8C-72E97198299F"/>
+        <sequenceFlow id="sid-7F51BFE2-6F6B-4FC0-9D98-3E3E65F1A039" sourceRef="startEvent" targetRef="sid-7D3A7811-1AD5-4D01-8DF8-6B3352B446F8"/>
+        <sequenceFlow id="toEnd" name="直接解决" sourceRef="sid-7D3A7811-1AD5-4D01-8DF8-6B3352B446F8" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toEnd'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="toServiceDesk" name="提交服务台" sourceRef="sid-7D3A7811-1AD5-4D01-8DF8-6B3352B446F8" targetRef="sAccept">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toServiceDesk'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sNext" sourceRef="sAccept" targetRef="sid-2D256DA4-11CF-4E63-B1B5-DBF4A76F0DB4"/>
+        <sequenceFlow id="toFirstLine" name="转一线执行" sourceRef="sid-7D3A7811-1AD5-4D01-8DF8-6B3352B446F8" targetRef="firstLine">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toFirstLine'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sToFirstLine" name="转一线" sourceRef="sid-2D256DA4-11CF-4E63-B1B5-DBF4A76F0DB4" targetRef="firstLine">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='sToFirstLine'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sToEnd" name="直接解决" sourceRef="sid-2D256DA4-11CF-4E63-B1B5-DBF4A76F0DB4" targetRef="endEvent">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='sToEnd'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="reToFirstLine" name="转一线" sourceRef="sid-DB38974D-D87A-4DCC-9F8C-72E97198299F" targetRef="firstLine">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toFirstLine'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="toSecondLine" name="转二线执行" sourceRef="sid-DB38974D-D87A-4DCC-9F8C-72E97198299F" targetRef="secondLine">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toSecondLine'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="reToSecondLine" name="转二线" sourceRef="sid-626324BD-4192-48DC-A07A-23E4AECEE014" targetRef="secondLine">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toSecondLine'}]]></conditionExpression>
+        </sequenceFlow>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_event">
+        <bpmndi:BPMNPlane bpmnElement="itsm_event" id="BPMNPlane_itsm_event">
+            <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+                <omgdc:Bounds height="30.0" width="30.0" x="45.0" y="240.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="firstLine" id="BPMNShape_firstLine">
+                <omgdc:Bounds height="79.99999999999994" width="100.0" x="540.0" y="215.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-DB38974D-D87A-4DCC-9F8C-72E97198299F" id="BPMNShape_sid-DB38974D-D87A-4DCC-9F8C-72E97198299F">
+                <omgdc:Bounds height="40.00000000000003" width="40.0" x="720.0" y="234.99999999999997"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="secondLine" id="BPMNShape_secondLine">
+                <omgdc:Bounds height="80.0" width="100.0" x="690.0" y="360.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-7D3A7811-1AD5-4D01-8DF8-6B3352B446F8" id="BPMNShape_sid-7D3A7811-1AD5-4D01-8DF8-6B3352B446F8">
+                <omgdc:Bounds height="40.0" width="40.0" x="135.0" y="235.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-2D256DA4-11CF-4E63-B1B5-DBF4A76F0DB4" id="BPMNShape_sid-2D256DA4-11CF-4E63-B1B5-DBF4A76F0DB4">
+                <omgdc:Bounds height="40.0" width="40.0" x="420.0" y="235.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sAccept" id="BPMNShape_sAccept">
+                <omgdc:Bounds height="80.0" width="100.0" x="240.0" y="215.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sid-626324BD-4192-48DC-A07A-23E4AECEE014" id="BPMNShape_sid-626324BD-4192-48DC-A07A-23E4AECEE014">
+                <omgdc:Bounds height="40.0" width="40.0" x="720.0" y="525.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+                <omgdc:Bounds height="28.0" width="28.0" x="900.0" y="531.0"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge bpmnElement="sid-7F51BFE2-6F6B-4FC0-9D98-3E3E65F1A039" id="BPMNEdge_sid-7F51BFE2-6F6B-4FC0-9D98-3E3E65F1A039">
+                <omgdi:waypoint x="75.0" y="255.0"/>
+                <omgdi:waypoint x="135.0" y="255.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="toServiceDesk" id="BPMNEdge_toServiceDesk">
+                <omgdi:waypoint x="175.0" y="255.0"/>
+                <omgdi:waypoint x="240.0" y="255.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="reToSecondLine" id="BPMNEdge_reToSecondLine">
+                <omgdi:waypoint x="720.0" y="545.0"/>
+                <omgdi:waypoint x="589.0" y="545.0"/>
+                <omgdi:waypoint x="589.0" y="400.0"/>
+                <omgdi:waypoint x="690.0" y="400.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="seNext" id="BPMNEdge_seNext">
+                <omgdi:waypoint x="740.0" y="440.0"/>
+                <omgdi:waypoint x="740.0" y="525.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="toEnd" id="BPMNEdge_toEnd">
+                <omgdi:waypoint x="155.0" y="275.0"/>
+                <omgdi:waypoint x="155.0" y="660.0"/>
+                <omgdi:waypoint x="1017.0" y="660.0"/>
+                <omgdi:waypoint x="1017.0" y="545.0"/>
+                <omgdi:waypoint x="928.0" y="545.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="seToEnd" id="BPMNEdge_seToEnd">
+                <omgdi:waypoint x="760.0" y="545.0"/>
+                <omgdi:waypoint x="900.0" y="545.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="reToFirstLine" id="BPMNEdge_reToFirstLine">
+                <omgdi:waypoint x="740.0" y="234.99999999999997"/>
+                <omgdi:waypoint x="740.0" y="169.0"/>
+                <omgdi:waypoint x="615.0" y="169.0"/>
+                <omgdi:waypoint x="601.6279069767442" y="215.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="toSecondLine" id="BPMNEdge_toSecondLine">
+                <omgdi:waypoint x="740.0" y="275.0"/>
+                <omgdi:waypoint x="740.0" y="360.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sToFirstLine" id="BPMNEdge_sToFirstLine">
+                <omgdi:waypoint x="460.0" y="255.0"/>
+                <omgdi:waypoint x="540.0" y="254.99999999999997"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="fToEnd" id="BPMNEdge_fToEnd">
+                <omgdi:waypoint x="760.0" y="255.0"/>
+                <omgdi:waypoint x="914.0" y="255.0"/>
+                <omgdi:waypoint x="914.0" y="531.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="fNext" id="BPMNEdge_fNext">
+                <omgdi:waypoint x="640.0" y="254.99999999999997"/>
+                <omgdi:waypoint x="720.0" y="255.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="toFirstLine" id="BPMNEdge_toFirstLine">
+                <omgdi:waypoint x="155.0" y="235.0"/>
+                <omgdi:waypoint x="155.0" y="169.0"/>
+                <omgdi:waypoint x="565.0" y="169.0"/>
+                <omgdi:waypoint x="578.3720930232558" y="215.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sToEnd" id="BPMNEdge_sToEnd">
+                <omgdi:waypoint x="440.0" y="275.0"/>
+                <omgdi:waypoint x="440.0" y="613.0"/>
+                <omgdi:waypoint x="914.0" y="613.0"/>
+                <omgdi:waypoint x="914.0" y="559.0"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sNext" id="BPMNEdge_sNext">
+                <omgdi:waypoint x="340.0" y="255.0"/>
+                <omgdi:waypoint x="420.0" y="255.0"/>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<NodeTable>
+  <CurrentNode nodeId="131000"/>
+  <UpdateTime>1169866150048</UpdateTime>
+  <Groups>
+    <Group id="744518" name="10.168.10.54:9502" pre="744000">
+      <Level>2</Level>
+      <Func>dcs</Func>
+    </Group>
+    <Group id="746000" name="127.0.0.1:9500">
+      <Level>1</Level>
+      <Func>portal</Func>
+    </Group>
+    <Group id="745000" name="10.168.10.54:9503">
+      <Level>1</Level>
+      <Func>trap</Func>
+    </Group>
+    <Group id="744000" name="10.168.10.54:9501">
+      <Level>1</Level>
+      <Func>ccs</Func>
+    </Group>
+  </Groups>
+  <Nodes>
+    <Node>
+      <Id>129500</Id>
+      <Name>10.168.10.54:9502</Name>
+      <Ip>10.168.10.54</Ip>
+      <Func>dcs</Func>
+      <Port>9502</Port>
+      <GroupId>744518</GroupId>
+      <Priority>0</Priority>
+    </Node>
+    <Node>
+      <Id>131000</Id>
+      <Name>127.0.0.1:9500</Name>
+      <Ip>127.0.0.1</Ip>
+      <Func>portal</Func>
+      <Port>9500</Port>
+      <GroupId>746000</GroupId>
+      <Priority>0</Priority>
+    </Node>
+    <Node>
+      <Id>130000</Id>
+      <Name>10.168.10.54:9503</Name>
+      <Ip>10.168.10.54</Ip>
+      <Func>trap</Func>
+      <Port>9503</Port>
+      <GroupId>745000</GroupId>
+      <Priority>0</Priority>
+    </Node>
+    <Node>
+      <Id>129000</Id>
+      <Name>10.168.10.54:9501</Name>
+      <Ip>10.168.10.54</Ip>
+      <Func>ccs</Func>
+      <Port>9501</Port>
+      <GroupId>744000</GroupId>
+      <Priority>0</Priority>
+    </Node>
+  </Nodes>
+</NodeTable>

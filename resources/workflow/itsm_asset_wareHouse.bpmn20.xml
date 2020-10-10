@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_assets_wareHouse" name="资产台账-出入库" isExecutable="true">
+    <startEvent id="startEvent" name="startEvent"/>
+    <endEvent id="endEvent" name="endEvent"/>
+    <serviceTask id="sid-2AB5EED5-3F39-42EA-90C0-07739644FE74" name="改变资产状态为入库" activiti:expression="${AssetServiceTask.inStorage(execution)}"/>
+    <serviceTask id="sid-37EEC79B-6CCF-4895-B2B0-004B6AA14408" name="改变资产状态为出库" activiti:expression="${AssetServiceTask.outBound(execution)}"/>
+    <sequenceFlow id="sid-EFF0ED57-E987-4B9D-8CDB-2339AFBBFE33" sourceRef="sid-37EEC79B-6CCF-4895-B2B0-004B6AA14408" targetRef="endEvent"/>
+    <sequenceFlow id="sid-0D79BFAA-95C5-4F13-B655-699E339F43BA" sourceRef="sid-2AB5EED5-3F39-42EA-90C0-07739644FE74" targetRef="endEvent"/>
+    <sequenceFlow id="sid-F25C37AB-6E14-4EE4-AFFE-35CA6D21A194" name="出库" sourceRef="startEvent" targetRef="sid-37EEC79B-6CCF-4895-B2B0-004B6AA14408">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "outBound"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-6B22ACDD-81A5-48C1-8A89-703FC8EBC163" name="入库" sourceRef="startEvent" targetRef="sid-2AB5EED5-3F39-42EA-90C0-07739644FE74">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "inStorage"}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_assets_wareHouse">
+    <bpmndi:BPMNPlane bpmnElement="itsm_assets_wareHouse" id="BPMNPlane_itsm_assets_wareHouse">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="150.0" y="247.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="887.5" y="248.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-2AB5EED5-3F39-42EA-90C0-07739644FE74" id="BPMNShape_sid-2AB5EED5-3F39-42EA-90C0-07739644FE74">
+        <omgdc:Bounds height="80.0" width="100.0" x="489.5" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-37EEC79B-6CCF-4895-B2B0-004B6AA14408" id="BPMNShape_sid-37EEC79B-6CCF-4895-B2B0-004B6AA14408">
+        <omgdc:Bounds height="80.0" width="100.0" x="489.5" y="285.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-0D79BFAA-95C5-4F13-B655-699E339F43BA" id="BPMNEdge_sid-0D79BFAA-95C5-4F13-B655-699E339F43BA">
+        <omgdi:waypoint x="589.5" y="148.23204419889504"/>
+        <omgdi:waypoint x="888.3471406171802" y="257.20392972781156"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-6B22ACDD-81A5-48C1-8A89-703FC8EBC163" id="BPMNEdge_sid-6B22ACDD-81A5-48C1-8A89-703FC8EBC163">
+        <omgdi:waypoint x="179.14694594628696" y="257.01362652894557"/>
+        <omgdi:waypoint x="489.5" y="147.62349799732976"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-EFF0ED57-E987-4B9D-8CDB-2339AFBBFE33" id="BPMNEdge_sid-EFF0ED57-E987-4B9D-8CDB-2339AFBBFE33">
+        <omgdi:waypoint x="589.5" y="316.29834254143645"/>
+        <omgdi:waypoint x="887.7073151691069" y="264.40038437664714"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F25C37AB-6E14-4EE4-AFFE-35CA6D21A194" id="BPMNEdge_sid-F25C37AB-6E14-4EE4-AFFE-35CA6D21A194">
+        <omgdi:waypoint x="179.79215553781307" y="264.4883999970153"/>
+        <omgdi:waypoint x="489.5" y="316.58878504672896"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

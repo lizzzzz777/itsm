@@ -1,0 +1,64 @@
+<!DOCTYPE lucene SYSTEM "lucene.dtd">
+<lucene lang="cn">
+	<doc obj="BUSINESS" keyField="id" searchMaxDocs="9">
+			<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="CONFIG" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="INSPECT" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="KNOWLEDGE" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="TOPOLOGY" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="REPORT" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="RESOURCE" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="ALARM" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="VM" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+	<doc obj="VIDEO" keyField="id" searchMaxDocs="9">
+		<index type="String" field="id" store="true"></index>
+	 	<index type="String" field="keywords" store="true"></index>
+		<index type="String" field="ip" store="true"></index>
+		<index type="String" field="content" store="true"></index>
+	</doc>
+
+</lucene>

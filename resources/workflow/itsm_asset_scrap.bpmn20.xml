@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_asset_scrap" name="资产台账-报废" isExecutable="true">
+    <startEvent id="startEvent" name="startEvent"/>
+    <serviceTask id="sid-8E82F4DC-F92F-4268-B901-0A8A6E3A1774" name="改变资产状态为报废" activiti:expression="${AssetServiceTask.scrapAsset(execution)}"/>
+    <endEvent id="endEvent" name="endEvent"/>
+    <sequenceFlow id="sid-C925EA23-FF02-4DC6-A863-EC5900855B3A" sourceRef="sid-8E82F4DC-F92F-4268-B901-0A8A6E3A1774" targetRef="endEvent"/>
+    <sequenceFlow id="sid-09357BCB-E725-4603-B488-7BD09C43720D" sourceRef="startEvent" targetRef="sid-8E82F4DC-F92F-4268-B901-0A8A6E3A1774"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_asset_scrap">
+    <bpmndi:BPMNPlane bpmnElement="itsm_asset_scrap" id="BPMNPlane_itsm_asset_scrap">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="146.5" y="231.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-8E82F4DC-F92F-4268-B901-0A8A6E3A1774" id="BPMNShape_sid-8E82F4DC-F92F-4268-B901-0A8A6E3A1774">
+        <omgdc:Bounds height="80.0" width="100.0" x="467.5" y="206.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="929.5" y="232.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-C925EA23-FF02-4DC6-A863-EC5900855B3A" id="BPMNEdge_sid-C925EA23-FF02-4DC6-A863-EC5900855B3A">
+        <omgdi:waypoint x="567.5" y="246.0"/>
+        <omgdi:waypoint x="929.5" y="246.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-09357BCB-E725-4603-B488-7BD09C43720D" id="BPMNEdge_sid-09357BCB-E725-4603-B488-7BD09C43720D">
+        <omgdi:waypoint x="176.5" y="246.0"/>
+        <omgdi:waypoint x="467.5" y="246.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

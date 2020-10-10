@@ -1,0 +1,21 @@
+<Scripts>
+  <Model configScriptId="100500" name="CISCO" oid="1.3.6.1.4.1.9.1.1238">
+    <Script type="tftp" cmd="enable|${enablePassword}|copy startup-config tftp://${tftpIp}/${fileName}||" fileName="startup-config"/>
+    <Script type="tftp" cmd="enable|${enablePassword}|copy running-config tftp://${tftpIp}/${fileName}||" fileName="running-config"/>
+  </Model>
+  <Model configScriptId="100501" name="HUAWEI" oid="1.3.6.1.4.1.25506.1.462">
+    <Script type="tftp" cmd="enable|${enableUserName}|${enablePassword}|tftp ${tftpIp} put h3c.cfg ${fileName}||" fileName="h3c.cfg"/>
+  </Model>
+  <Model configScriptId="100502" name="MAIPU" oid="1.3.6.1.4.1.5651.1.102.37">
+    <Script type="tftp" cmd="enable|${enablePassword}|filesystem|copy startup-config tftp ${tftpIp} ${fileName}" fileName="startup-config"/>
+    <Script type="tftp" cmd="enable|${enablePassword}|filesystem|copy running-config tftp ${tftpIp} ${fileName}" fileName="running-config"/>
+  </Model>
+  <Model configScriptId="100503" name="MAIPU-S4100" oid="1.3.6.1.4.1.5651.1.102.109">
+    <Script type="tftp" cmd="enable|${enablePassword}|filesystem|copy startup-config tftp ${tftpIp} ${fileName}||" fileName="startup-config"/>
+    <Script type="tftp" cmd="enable|${enablePassword}|filesystem|copy running-config tftp ${tftpIp} ${fileName}||" fileName="running-config"/>
+  </Model>
+  <Model configScriptId="100504" name="MAIPU-SM3100" oid="1.3.6.1.4.1.5651.1.102.77">
+    <Script type="tftp" cmd="||enable|copy running-config tftp://${tftpIp}/${fileName}|y" fileName="running-config"/>
+    <Script type="tftp" cmd="||enable|copy startup-config tftp://${tftpIp}/${fileName}|y" fileName="startup-config"/>
+  </Model>
+</Scripts>

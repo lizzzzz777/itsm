@@ -1,0 +1,182 @@
+<configuration>
+
+    <appender name="ITSM_CMDB" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/itsm_cmdb.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/itsm_cmdb%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_DUTYMANAGE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/itsm_dutymanage.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/itsm_dutymanage%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_KNOWLEDGE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/itsm_knowledge.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/itsm_knowledge%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_PM" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/pm.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/pm%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_SERVICECATALOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/service_catalog.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/service_catalog%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_ACTION" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/itsm_action.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/itsm_action%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_REPORT_ITEM" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/report_item.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/report_item%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_WORK_FLOW" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/work_flow.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/work_flow%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_SYSTEM" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/itsm_system.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/itsm_system%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="ITSM_SYSTEM_ACTION" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.base}/logs/itsm_system_action.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${catalina.base}/logs/itsm_system_action%i.log</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>5</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>25MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>[%date]-[%level]-[%logger]-[%thread] %message%xException%n</pattern>
+        </encoder>
+    </appender>
+
+
+
+    <logger name="com.vlinksoft.ves.cmdb" level="INFO">
+        <appender-ref ref="ITSM_CMDB"/>
+    </logger>
+    <logger name="com.vlinksoft.ves.dutymanage" level="INFO">
+        <appender-ref ref="ITSM_DUTYMANAGE"/>
+    </logger>
+    <logger name="com.vlinksoft.ves.knowledgelogue" level="INFO">
+        <appender-ref ref="ITSM_KNOWLEDGE"/>
+    </logger>
+    <logger name="com.vlinksoft.ves.pm" level="INFO">
+        <appender-ref ref="ITSM_PM"/>
+    </logger>
+
+    <logger name="com.vlinksoft.ves.servicecatalog" level="INFO">
+        <appender-ref ref="ITSM_SERVICECATALOG"/>
+    </logger>
+    <logger name="com.vlinksoft.ves.activiti" level="INFO">
+        <appender-ref ref="ITSM_ACTION"/>
+    </logger>
+
+    <logger name="com.vlinksoft.ves.report.item" level="INFO">
+        <appender-ref ref="ITSM_REPORT_ITEM"/>
+    </logger>
+    <logger name="com.vlinksoft.ves.workflow.um" level="INFO">
+        <appender-ref ref="ITSM_WORK_FLOW"/>
+    </logger>
+    <logger name="com.vlinksoft.ves.license.calc" level="INFO">
+        <appender-ref ref="ITSM_SYSTEM"/>
+    </logger>
+    <logger name="com.vlinksoft.ves.sysmgr" level="INFO">
+        <appender-ref ref="ITSM_SYSTEM_ACTION"/>
+    </logger>
+
+
+
+
+</configuration>

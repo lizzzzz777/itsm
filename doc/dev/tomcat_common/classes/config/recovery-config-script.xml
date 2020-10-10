@@ -1,0 +1,10 @@
+<Scripts>
+  <Model configScriptId="100500" name="CISCO" oid="1.3.6.1.4.1.9.1.1238">
+    <Script type="tftp" cmd="enable|${enablePassword}|copy tftp://${tftpIp}/${fileName} ${newFileName}||" fileName="startup-config"/>
+    <Script type="tftp" cmd="enable|${enablePassword}|copy tftp://${tftpIp}/${fileName} ${newFileName}||" fileName="running-config"/>
+  </Model>
+  <Model configScriptId="100501" name="HUAWEI" oid="1.3.6.1.4.1.25506.1.462"/>
+  <Model configScriptId="100502" name="MAIPU" oid="1.3.6.1.4.1.5651.1.102.37"/>
+  <Model configScriptId="100503" name="MAIPU-S4100" oid="1.3.6.1.4.1.5651.1.102.109"/>
+  <Model configScriptId="100504" name="MAIPU-SM3100" oid="1.3.6.1.4.1.5651.1.102.77"/>
+</Scripts>

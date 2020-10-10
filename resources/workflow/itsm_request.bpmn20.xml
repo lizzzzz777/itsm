@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_request" name="请求流程" isExecutable="true">
+    <startEvent id="startEvent" activiti:initiator="creator"/>
+    <endEvent id="endEvent" name="提交结束"/>
+    <userTask id="sAccept" name="服务台受理" activiti:candidateGroups="424500"/>
+    <userTask id="firstSecondLine" name="处理" activiti:candidateGroups="424501,424502"/>
+    <userTask id="resultConfirm" name="结果确认" activiti:candidateUsers="${creator}"/>
+    <exclusiveGateway id="sid-F6008A40-B665-4A84-9D2C-73445F9E4697"/>
+    <sequenceFlow id="reToEnd" name="提交关闭" sourceRef="sid-F6008A40-B665-4A84-9D2C-73445F9E4697" targetRef="endEvent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toEnd'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="reDeal" name="重新处理" sourceRef="sid-F6008A40-B665-4A84-9D2C-73445F9E4697" targetRef="firstSecondLine">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toReDealt'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sToFirSecLine" name="分派处理" sourceRef="sAccept" targetRef="firstSecondLine"/>
+    <sequenceFlow id="toServiceDesk" name="提交服务台" sourceRef="startEvent" targetRef="sAccept">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action=='toServiceDesk'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="rNext" sourceRef="resultConfirm" targetRef="sid-F6008A40-B665-4A84-9D2C-73445F9E4697"/>
+    <sequenceFlow id="fsToReLine" name="提交确认" sourceRef="firstSecondLine" targetRef="resultConfirm">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == 'toMakeSure'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="sid-F28D6FF5-FE58-48F4-8E4A-6C3788C1F8DF" name="超时结束"/>
+    <sequenceFlow id="sid-043192A4-6E64-4955-9DEC-687882EA75A0" name="超时" sourceRef="sid-5824C6FF-A24E-48C1-8E57-A00DF26BABDE" targetRef="sid-F28D6FF5-FE58-48F4-8E4A-6C3788C1F8DF"/>
+    <boundaryEvent id="sid-5824C6FF-A24E-48C1-8E57-A00DF26BABDE" attachedToRef="resultConfirm" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT48H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_request">
+    <bpmndi:BPMNPlane bpmnElement="itsm_request" id="BPMNPlane_itsm_request">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="60.0" y="234.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="1035.0" y="235.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sAccept" id="BPMNShape_sAccept">
+        <omgdc:Bounds height="81.0" width="101.0" x="225.0" y="209.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="firstSecondLine" id="BPMNShape_firstSecondLine">
+        <omgdc:Bounds height="80.0" width="100.0" x="435.0" y="209.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="resultConfirm" id="BPMNShape_resultConfirm">
+        <omgdc:Bounds height="80.0" width="100.0" x="660.0" y="209.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-F6008A40-B665-4A84-9D2C-73445F9E4697" id="BPMNShape_sid-F6008A40-B665-4A84-9D2C-73445F9E4697">
+        <omgdc:Bounds height="40.0" width="40.0" x="840.0" y="229.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-F28D6FF5-FE58-48F4-8E4A-6C3788C1F8DF" id="BPMNShape_sid-F28D6FF5-FE58-48F4-8E4A-6C3788C1F8DF">
+        <omgdc:Bounds height="28.0" width="28.0" x="1026.0" y="95.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-5824C6FF-A24E-48C1-8E57-A00DF26BABDE" id="BPMNShape_sid-5824C6FF-A24E-48C1-8E57-A00DF26BABDE">
+        <omgdc:Bounds height="31.0" width="31.0" x="662.1157835169693" y="177.11281630055254"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="toServiceDesk" id="BPMNEdge_toServiceDesk">
+        <omgdi:waypoint x="89.99995335871655" y="249.0374063674781"/>
+        <omgdi:waypoint x="225.0" y="249.37406483790522"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sToFirSecLine" id="BPMNEdge_sToFirSecLine">
+        <omgdi:waypoint x="326.0" y="249.5"/>
+        <omgdi:waypoint x="435.0" y="249.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="reDeal" id="BPMNEdge_reDeal">
+        <omgdi:waypoint x="860.0" y="269.0"/>
+        <omgdi:waypoint x="860.0" y="422.0"/>
+        <omgdi:waypoint x="485.0" y="422.0"/>
+        <omgdi:waypoint x="485.0" y="289.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="fsToReLine" id="BPMNEdge_fsToReLine">
+        <omgdi:waypoint x="535.0" y="249.38888888888889"/>
+        <omgdi:waypoint x="660.0" y="249.11111111111111"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="reToEnd" id="BPMNEdge_reToEnd">
+        <omgdi:waypoint x="880.0" y="249.0"/>
+        <omgdi:waypoint x="1035.0" y="249.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="rNext" id="BPMNEdge_rNext">
+        <omgdi:waypoint x="760.0" y="249.0"/>
+        <omgdi:waypoint x="840.0" y="249.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-043192A4-6E64-4955-9DEC-687882EA75A0" id="BPMNEdge_sid-043192A4-6E64-4955-9DEC-687882EA75A0">
+        <omgdi:waypoint x="677.6157835169693" y="177.11281630055254"/>
+        <omgdi:waypoint x="677.6157835169693" y="109.0"/>
+        <omgdi:waypoint x="1026.0" y="109.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

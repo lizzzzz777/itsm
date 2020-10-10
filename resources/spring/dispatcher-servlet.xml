@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+							http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+							http://www.springframework.org/schema/context
+							http://www.springframework.org/schema/context/spring-context-3.0.xsd
+							http://www.springframework.org/schema/aop
+							http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+							http://www.springframework.org/schema/tx
+							http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+							http://www.springframework.org/schema/task
+							http://www.springframework.org/schema/task/spring-task-3.0.xsd
+							http://www.springframework.org/schema/mvc
+							http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+							http://www.springframework.org/schema/util
+							http://www.springframework.org/schema/util/spring-util.xsd
+">
+
+
+	<context:property-placeholder location="classpath:properties/ves.properties" />
+	<!-- 把标记了@Controller注解的类转换为bean-->
+	<context:component-scan base-package="com.vlinksoft.ves.**.controller" />
+	<context:component-scan base-package="com.vlinksoft.activiti.editor"/>
+	<context:component-scan base-package="com.vlinksoft.activiti.diagram.services"/>
+	<context:component-scan base-package="com.vlinksoft.activiti.editor.main"/>
+	<context:component-scan base-package="com.vlinksoft.activiti.editor.model"/>
+	<context:component-scan base-package="com.vlinksoft.activiti.**.controller"/>
+
+	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+	<!-- Jackson Mapper -->
+	<bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" />
+	<bean id="jacksonObjectMapper2" class="com.fasterxml.jackson.databind.ObjectMapper"/>
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="jacksonObjectMapper2" />
+		<property name="targetMethod" value="configure" />
+		<property name="arguments">
+			<list>
+				<value type="com.fasterxml.jackson.databind.DeserializationFeature">FAIL_ON_UNKNOWN_PROPERTIES</value>
+				<value>false</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="messageAdapter"
+		  class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="messageConverters" ref="messageConverters" />
+	</bean>
+	<!-- Http messageConverters，用于将对象输出到客户端-->
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<ref bean="HttpMessageConverterUTF8" />
+			<ref bean="stringHttpMessageConverter" />
+			<ref bean="MappingJackson2HttpMessageConverter" />
+			<ref bean="FormHttpMessageConverter" />
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+	<!-- Spring拦截器 -->
+	<!--<mvc:interceptors>-->
+		<!--<bean class="com.vlinksoft.ves.sysmgr.auditlog.web.interceptor.ActionVisitLogInterceptor" />-->
+	<!--</mvc:interceptors>-->
+
+	<bean id="HttpMessageConverterUTF8"
+		  class="com.vlinksoft.ves.util.HttpMessageConverterUTF8"/>
+	<bean id="FormHttpMessageConverter"
+			class="org.springframework.http.converter.FormHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>application/x-www-form-urlencoded; charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="stringHttpMessageConverter"
+		  class="org.springframework.http.converter.StringHttpMessageConverter">
+		<constructor-arg value="UTF-8" index="0"></constructor-arg><!--
+            避免出现乱码 -->
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/plain;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="MappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<!--<property name="objectMapper" ref="jacksonObjectMapper" />-->
+		<property name="supportedMediaTypes">
+			<list>
+				<value>application/json</value>
+				<value>application/javascript</value>
+				<value>text/json</value>
+				<value>text/javascript</value>
+				<value>text/plain;charset=UTF-8</value>
+				<value>text/html;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 返回类型定义 -->
+	<util:list id="messageConverters">
+		<ref bean="HttpMessageConverterUTF8" />
+		<ref bean="stringHttpMessageConverter" />
+		<ref bean="MappingJackson2HttpMessageConverter" />
+		<ref bean="FormHttpMessageConverter" />
+	</util:list>
+
+	<!-- 对模型视图名称的解析，即在模型视图名称添加前后缀  -->
+	<bean id="jspViewResolver"
+		  class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		  p:prefix="/WEB-INF/jsp/" p:suffix=".jsp">
+		<property name="order" value="200"/>
+	</bean>
+	<!--<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewNames">
+			<list>
+				<value>/jsp/**</value>
+			</list>
+		</property>
+		<property name="viewClass" value="org.springframework.web.servlet.view.InternalResourceView" />
+		<property name="prefix" value="WEB-INF/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order" value="201"/>
+	</bean>-->
+
+	<!-- 视图 beans
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/" />
+ 		<property name="suffix" value=".jsp" />
+ 	</bean>-->
+	<!-- Controller 跳转的JSP页面路径 和 文件的后缀 -->
+	<!-- 文件上传 set the max upload size100MB-->
+	<bean id="multipartResolver"
+		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>104857600</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>1024000</value>
+		</property>
+	</bean>
+
+
+</beans>

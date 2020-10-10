@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="itsm_asset_use" name="资产台账-领用归还" isExecutable="true">
+    <startEvent id="startEvent" name="startEvent"/>
+    <endEvent id="endEvent" name="endEvent"/>
+    <serviceTask id="sid-AD93EBF8-0AD4-4B68-BDC1-69C05BA603D4" name="改变资产状态为使用" activiti:expression="${AssetServiceTask.use(execution)}"/>
+    <serviceTask id="sid-5BAC74E8-F8AE-4FF5-941A-4B3586E51727" name="改变资产状态为归还" activiti:expression="${AssetServiceTask.returnAsset(execution)}"/>
+    <sequenceFlow id="sid-CD594D4E-573A-4AD5-86D4-5BA6BF47C2DF" sourceRef="sid-AD93EBF8-0AD4-4B68-BDC1-69C05BA603D4" targetRef="endEvent"/>
+    <sequenceFlow id="sid-D92E2EAA-D1E8-4E6D-A68F-2A186FD95691" sourceRef="sid-5BAC74E8-F8AE-4FF5-941A-4B3586E51727" targetRef="endEvent"/>
+    <sequenceFlow id="sid-1E3E7B20-1FA3-413E-9416-E1DE3EEAF244" name="领用" sourceRef="startEvent" targetRef="sid-AD93EBF8-0AD4-4B68-BDC1-69C05BA603D4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "use"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-7F597529-9FDF-4149-B79F-256DBFB43E15" name="归还" sourceRef="startEvent" targetRef="sid-5BAC74E8-F8AE-4FF5-941A-4B3586E51727">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${action == "return"}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_itsm_asset_use">
+    <bpmndi:BPMNPlane bpmnElement="itsm_asset_use" id="BPMNPlane_itsm_asset_use">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="30.0" width="30.0" x="71.5" y="269.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endEvent" id="BPMNShape_endEvent">
+        <omgdc:Bounds height="28.0" width="28.0" x="825.0" y="270.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-AD93EBF8-0AD4-4B68-BDC1-69C05BA603D4" id="BPMNShape_sid-AD93EBF8-0AD4-4B68-BDC1-69C05BA603D4">
+        <omgdc:Bounds height="80.0" width="100.0" x="405.0" y="75.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-5BAC74E8-F8AE-4FF5-941A-4B3586E51727" id="BPMNShape_sid-5BAC74E8-F8AE-4FF5-941A-4B3586E51727">
+        <omgdc:Bounds height="80.0" width="100.0" x="405.0" y="345.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-D92E2EAA-D1E8-4E6D-A68F-2A186FD95691" id="BPMNEdge_sid-D92E2EAA-D1E8-4E6D-A68F-2A186FD95691">
+        <omgdi:waypoint x="505.0" y="371.8489583333333"/>
+        <omgdi:waypoint x="825.4604998652753" y="287.5611706083521"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-1E3E7B20-1FA3-413E-9416-E1DE3EEAF244" id="BPMNEdge_sid-1E3E7B20-1FA3-413E-9416-E1DE3EEAF244">
+        <omgdi:waypoint x="100.13451214229595" y="277.7469944313487"/>
+        <omgdi:waypoint x="405.0" y="137.93080054274083"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-7F597529-9FDF-4149-B79F-256DBFB43E15" id="BPMNEdge_sid-7F597529-9FDF-4149-B79F-256DBFB43E15">
+        <omgdi:waypoint x="100.96646307755431" y="287.9650278720027"/>
+        <omgdi:waypoint x="405.0" y="371.29579375848033"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-CD594D4E-573A-4AD5-86D4-5BA6BF47C2DF" id="BPMNEdge_sid-CD594D4E-573A-4AD5-86D4-5BA6BF47C2DF">
+        <omgdi:waypoint x="505.0" y="137.00520833333331"/>
+        <omgdi:waypoint x="826.1860816396078" y="278.36054113826486"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
